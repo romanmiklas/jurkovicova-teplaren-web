@@ -369,6 +369,7 @@
     }
     function next() { setActive(active + 1); }
     function play() {
+      if (reduceMotion) return;   // §14: no auto-rotation under reduced motion
       stop();
       timer = setInterval(next, INTERVAL);
     }
@@ -478,8 +479,9 @@
     const amHoverImg = amHover.querySelector("img");
     const amRows = document.querySelectorAll(".amenities__row[data-hover]");
     function moveHover(e) {
-      amHover.style.left = e.clientX + "px";
-      amHover.style.top = e.clientY + "px";
+      // transform-based follow (no left/top layout thrash) — §11
+      amHover.style.setProperty("--hx", e.clientX + "px");
+      amHover.style.setProperty("--hy", e.clientY + "px");
     }
     amRows.forEach(function (row) {
       row.addEventListener("mouseenter", function () {
@@ -809,14 +811,28 @@
       });
     });
 
-    // finger / pointer drag (touch-action: pan-y keeps vertical page-scroll)
+    // finger / pointer drag with velocity → momentum projection (touch-action:
+    // pan-y keeps vertical page-scroll). Apple §2 direct manipulation, §3
+    // interruptible re-grab, §5 velocity handoff, §6 project the flick's
+    // landing point instead of snapping from the release point.
     let dragging = false, startX = 0, startTx = 0;
+    let vel = 0, lastX = 0, lastT = 0;
+
+    function liveTx() { // current ON-SCREEN x (presentation value), not the target
+      const m = new DOMMatrixReadOnly(getComputedStyle(aboutTrack).transform);
+      return -m.m41;
+    }
+    // exponential-decay projection from the release velocity (Apple's formula)
+    function project(v, decel) { return (v / 1000) * decel / (1 - decel); }
+
     aboutGallery.addEventListener("pointerdown", function (e) {
       if (e.target.closest(".about__ctrl")) return;
       dragging = true;
-      startX = e.clientX;
-      startTx = tx;
+      tx = liveTx();                      // §3: grab mid-glide → continue from
+      startX = e.clientX; startTx = tx;   //     the on-screen spot, no jump
+      lastX = e.clientX; lastT = e.timeStamp; vel = 0;
       aboutTrack.style.transition = "none";
+      paint();
       aboutGallery.classList.add("is-dragging");
       try { aboutGallery.setPointerCapture(e.pointerId); } catch (err) {}
     });
@@ -824,15 +840,31 @@
       if (!dragging) return;
       tx = startTx - (e.clientX - startX);
       paint();
+      const dt = e.timeStamp - lastT;
+      if (dt > 0) {
+        const inst = (e.clientX - lastX) / dt * 1000; // px/s of the finger
+        vel = vel * 0.6 + inst * 0.4;                 // smoothed, recent-weighted
+        lastX = e.clientX; lastT = e.timeStamp;
+      }
     });
     function endDrag() {
       if (!dragging) return;
       dragging = false;
       aboutGallery.classList.remove("is-dragging");
-      aboutTrack.style.transition = "";
-      tx = Math.round(tx / step()) * step(); // snap to nearest slide
+      // content moves opposite the finger → invert the velocity, then project
+      const projected = tx + project(-vel, 0.997);
+      const target = Math.round(projected / step()) * step(); // snap to the throw
+      const dist = Math.abs(target - tx);
+      if (reduceMotion) {
+        aboutTrack.style.transition = "none";
+      } else {
+        // distance-aware glide so a hard flick travels longer (momentum feel)
+        const dur = Math.max(0.28, Math.min(0.9, (dist / step()) * 0.22));
+        aboutTrack.style.transition = "transform " + dur + "s cubic-bezier(.16, 1, .3, 1)";
+      }
+      tx = target;
       paint();
-      normalize(); // covers the zero-distance snap (no transitionend fires)
+      if (dist < 1) normalize(); // no transitionend fires when nothing moves
     }
     aboutGallery.addEventListener("pointerup", endDrag);
     aboutGallery.addEventListener("pointercancel", endDrag);
@@ -1004,6 +1036,10 @@
       pop.setAttribute("role", "dialog");
       pop.innerHTML = buildGrid();
       root.appendChild(pop);
+      // materialize from the trigger origin (§7/§12) — paint hidden state first
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () { if (pop) pop.classList.add("is-open"); });
+      });
       trigger.setAttribute("aria-expanded", "true");
       document.addEventListener("click", onOutside, true);
     }
