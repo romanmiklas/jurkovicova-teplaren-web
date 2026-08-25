@@ -1,0 +1,65 @@
+# =========================================================================
+# Jurkovičova Tepláreň — security & hardening (Apache / Websupport)
+# =========================================================================
+
+# ---- Force HTTPS --------------------------------------------------------
+RewriteEngine On
+RewriteCond %{HTTPS} !=on
+RewriteCond %{HTTP:X-Forwarded-Proto} !https
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# ---- Canonical host: non-www -> www (avoids duplicate content) ----------
+RewriteCond %{HTTP_HOST} ^jurkovicovateplaren\.sk$ [NC]
+RewriteRule ^ https://www.jurkovicovateplaren.sk%{REQUEST_URI} [L,R=301]
+
+# ---- Custom 404 page -----------------------------------------------------
+ErrorDocument 404 /404.html
+
+# ---- Security response headers -----------------------------------------
+<IfModule mod_headers.c>
+  # force HTTPS for 1 year (only after you've confirmed HTTPS works everywhere)
+  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+  # stop MIME-type sniffing
+  Header always set X-Content-Type-Options "nosniff"
+  # clickjacking protection
+  Header always set X-Frame-Options "SAMEORIGIN"
+  # limit referrer leakage
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  # disable powerful features the site doesn't use
+  Header always set Permissions-Policy "geolocation=(), camera=(), microphone=(), payment=(), usb=()"
+  # Content Security Policy — everything is served from this origin.
+  # 'unsafe-inline' is kept because of the small inline boot script in <head>;
+  # tighten to nonces/hashes later if you want maximum strictness.
+  # Google Tag Manager + Google Analytics 4 + Google Ads (conversion &
+  # remarketing) domains are allow-listed below, per Google's official CSP
+  # guide. The www.google.<tld> entries carry Ads conversion pings that Google
+  # routes to the visitor's local domain (SK/CZ/AT/DE/HU/PL covered) — add more
+  # country domains if you run ads targeting other markets. If you later add
+  # non-Google tags via GTM (e.g. Meta Pixel connect.facebook.net /
+  # www.facebook.com, LinkedIn snap.licdn.com), add their domains here too.
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://*.googletagmanager.com https://www.google-analytics.com https://ssl.google-analytics.com https://www.googleadservices.com https://googleads.g.doubleclick.net https://pagead2.googlesyndication.com https://www.google.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://www.googletagmanager.com https://*.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://*.doubleclick.net https://www.googleadservices.com https://pagead2.googlesyndication.com https://www.google.com https://www.google.sk https://www.google.cz https://www.google.at https://www.google.de https://www.google.hu https://www.google.pl; font-src 'self'; connect-src 'self' https://www.googletagmanager.com https://*.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://*.doubleclick.net https://www.googleadservices.com https://pagead2.googlesyndication.com https://www.google.com https://www.google.sk https://www.google.cz https://www.google.at https://www.google.de https://www.google.hu https://www.google.pl; frame-src https://www.googletagmanager.com https://*.doubleclick.net; form-action 'self'; frame-ancestors 'self'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests"
+  # don't leak the server/PHP version
+  Header always unset X-Powered-By
+  Header unset X-Powered-By
+</IfModule>
+
+# ---- No directory listings ---------------------------------------------
+Options -Indexes
+
+# ---- Block hidden/dot files (.git, .env, .htaccess…) -------------------
+<FilesMatch "^\.">
+  Require all denied
+</FilesMatch>
+
+# ---- Block dev / sensitive files if they ever get uploaded -------------
+<FilesMatch "(?i)\.(md|sh|log|bak|old|ini|json|lock|map|yml|yaml)$">
+  Require all denied
+</FilesMatch>
+
+# ---- Don't expose the .git folder --------------------------------------
+RedirectMatch 404 /\.git
+
+# ---- Disable risky HTTP methods ----------------------------------------
+<LimitExcept GET POST HEAD>
+  Require all denied
+</LimitExcept>

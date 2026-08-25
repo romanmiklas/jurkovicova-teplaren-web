@@ -1,0 +1,11 @@
+# OS / editor cruft
+.DS_Store
+
+# Local Claude Code config (machine-specific absolute paths)
+.claude/
+
+# Dev-only / large / licensed source assets — kept locally, not in the repo
+# (_resources holds the APK Narrative licence + EULA and the client's internal
+#  change-requests docx; _figma_ref is ~39 MB of Figma PNG exports)
+_resources/
+_figma_ref/
