@@ -84,7 +84,7 @@
       el.classList.remove("is-open");
       document.body.classList.remove("welcome-open");
       if (window.__lenis) window.__lenis.start();
-      setTimeout(function () { el.remove(); }, reduceMotion ? 0 : 400);
+      setTimeout(function () { el.remove(); }, reduceMotion ? 0 : 560);
       document.removeEventListener("keydown", onKey);
     }
     function onKey(e) { if (e.key === "Escape") close(); }
@@ -169,7 +169,7 @@
       dir === "up"   ? "inset(100% 0 0 0)" :
                        "inset(0 0 0 100%)";
 
-    const DURATION = 820;
+    const DURATION = 1150;
     let done = false;
     function finish() {
       if (done) return;
@@ -184,7 +184,7 @@
         { clipPath: fromClip, transform: "scale(1.06)" },
         { clipPath: "inset(0 0 0 0)", transform: "scale(1)" }
       ],
-      { duration: DURATION, easing: "cubic-bezier(0.76, 0, 0.24, 1)", fill: "both" }
+      { duration: DURATION, easing: "cubic-bezier(0.16, 1, 0.3, 1)", fill: "both" }
     );
     layer._anim = anim;
     anim.onfinish = finish;
@@ -202,8 +202,8 @@
       const startY = window.scrollY;
       const dist = targetY - startY;
       if (Math.abs(dist) < 2) return;
-      // ~50% slower than the native smooth scroll, distance-scaled
-      const duration = Math.min(1300, Math.max(700, Math.abs(dist) * 0.5));
+      // slow, distance-scaled eased scroll (soft)
+      const duration = Math.min(1820, Math.max(980, Math.abs(dist) * 0.7));
       let startTime = null;
       function step(now) {
         if (startTime === null) startTime = now;
@@ -224,7 +224,7 @@
       const offset = headerEl ? headerEl.offsetHeight : 0;
       const y = target.getBoundingClientRect().top + window.scrollY - offset;
       if (reduceMotion) { window.scrollTo(0, y); }
-      else if (window.__lenis) { window.__lenis.scrollTo(y, { duration: 1.2 }); }
+      else if (window.__lenis) { window.__lenis.scrollTo(y, { duration: 1.7 }); }
       else { scrollToY(y); }
       if (history.replaceState) history.replaceState(null, "", id);
     });
@@ -237,7 +237,7 @@
     if (reduceMotion || typeof Lenis === "undefined") return;
     if (window.matchMedia("(pointer: coarse)").matches) return; // touch → native
     const lenis = new Lenis({
-      duration: 1.1,
+      duration: 1.5,
       easing: function (t) { return t === 1 ? 1 : 1 - Math.pow(2, -10 * t); }, // expo-out
       smoothWheel: true,
       wheelMultiplier: 1,
@@ -274,7 +274,7 @@
       const sibs = Array.prototype.slice.call(el.parentNode.children)
         .filter(function (c) { return c.dataset && c.dataset.revealPending; });
       const idx = sibs.indexOf(el);
-      if (idx > 0) el.style.setProperty("--rd", (idx * 90) + "ms");
+      if (idx > 0) el.style.setProperty("--rd", (idx * 126) + "ms");
     });
 
     const io = new IntersectionObserver(function (entries) {
@@ -642,9 +642,9 @@
       void pricingCards.offsetWidth; // flush the hidden state before animating
       requestAnimationFrame(function () {
         cards.forEach(function (card, i) {
-          const delay = i * 85;
+          const delay = i * 119;
           card.style.transition =
-            "opacity .5s ease " + delay + "ms, transform .6s cubic-bezier(.16, 1, .3, 1) " + delay + "ms";
+            "opacity .7s ease " + delay + "ms, transform .84s cubic-bezier(.16, 1, .3, 1) " + delay + "ms";
           card.style.opacity = "1";
           card.style.transform = "none";
         });
@@ -859,7 +859,7 @@
         aboutTrack.style.transition = "none";
       } else {
         // distance-aware glide so a hard flick travels longer (momentum feel)
-        const dur = Math.max(0.28, Math.min(0.9, (dist / step()) * 0.22));
+        const dur = Math.max(0.4, Math.min(1.3, (dist / step()) * 0.31));
         aboutTrack.style.transition = "transform " + dur + "s cubic-bezier(.16, 1, .3, 1)";
       }
       tx = target;
