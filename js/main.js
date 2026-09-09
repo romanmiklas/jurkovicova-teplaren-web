@@ -117,19 +117,34 @@
         return ("0" + parseInt(n, 10).toString(16)).slice(-2);
       }).join("");
     }
-    function bgOf(el) {
+    function hexOf(el) {
       const c = getComputedStyle(el).backgroundColor;
-      return (!c || c === "rgba(0, 0, 0, 0)" || c === "transparent") ? bodyBg : c;
+      return toHex((!c || c === "rgba(0, 0, 0, 0)" || c === "transparent") ? bodyBg : c);
     }
 
-    let last = "";
+    // Cache each section's document-top offset + its (static) colour ONCE, so
+    // the scroll handler does ZERO layout/style reads per frame. The old code
+    // ran 11× getBoundingClientRect + getComputedStyle every frame — the main
+    // cause of the choppy scroll.
+    // authoritative scroll offset — Lenis when present (correct in both its
+    // real-scroll and transform modes), else the native window scroll
+    function scrollPos() { return window.__lenis ? window.__lenis.scroll : window.scrollY; }
+
+    let tops = [], hexes = [];
+    function measure() {
+      const sy = scrollPos();
+      tops = sections.map(function (el) { return el.getBoundingClientRect().top + sy; });
+      hexes = sections.map(hexOf);
+    }
+
+    let last = "", lastIdx = -1;
     function update() {
-      let current = sections[0];
-      for (let i = 0; i < sections.length; i++) {
-        const r = sections[i].getBoundingClientRect();
-        if (r.top <= 1 && r.bottom > 1) { current = sections[i]; break; }
-      }
-      const hex = toHex(bgOf(current));
+      const y = scrollPos() + 1;
+      let idx = 0;
+      for (let i = 0; i < tops.length; i++) { if (tops[i] <= y) idx = i; else break; }
+      if (idx === lastIdx) return;
+      lastIdx = idx;
+      const hex = hexes[idx];
       if (hex && hex !== last) { last = hex; meta.setAttribute("content", hex); }
     }
 
@@ -140,9 +155,12 @@
         requestAnimationFrame(function () { update(); ticking = false; });
       }
     }
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll, { passive: true });
+    function remeasure() { measure(); lastIdx = -1; update(); }
+    measure();
     update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", remeasure, { passive: true });
+    window.addEventListener("load", remeasure);
   })();
 
   /* ---- Shared: directional image-wipe transition ----------------------- *
@@ -195,20 +213,21 @@
   /* ---- Shared: smooth anchor scroll (slow, eased) ---------------------- */
   (function () {
     const headerEl = document.querySelector(".site-header");
-    function easeInOutCubic(t) {
-      return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    // soft ease-in-out (gentle at BOTH ends) → an elegant glide into the anchor
+    function easeInOutQuart(t) {
+      return t < 0.5 ? 8 * t * t * t * t : 1 - Math.pow(-2 * t + 2, 4) / 2;
     }
     function scrollToY(targetY) {
       const startY = window.scrollY;
       const dist = targetY - startY;
       if (Math.abs(dist) < 2) return;
-      // slow, distance-scaled eased scroll (soft)
-      const duration = Math.min(1820, Math.max(980, Math.abs(dist) * 0.7));
+      // slower, distance-scaled, eased at both ends
+      const duration = Math.min(2400, Math.max(1400, Math.abs(dist) * 0.9));
       let startTime = null;
       function step(now) {
         if (startTime === null) startTime = now;
         const p = Math.min(1, (now - startTime) / duration);
-        window.scrollTo(0, startY + dist * easeInOutCubic(p));
+        window.scrollTo(0, startY + dist * easeInOutQuart(p));
         if (p < 1) requestAnimationFrame(step);
       }
       requestAnimationFrame(step);
@@ -224,7 +243,7 @@
       const offset = headerEl ? headerEl.offsetHeight : 0;
       const y = target.getBoundingClientRect().top + window.scrollY - offset;
       if (reduceMotion) { window.scrollTo(0, y); }
-      else if (window.__lenis) { window.__lenis.scrollTo(y, { duration: 1.7 }); }
+      else if (window.__lenis) { window.__lenis.scrollTo(y, { duration: 2.2, easing: easeInOutQuart }); }
       else { scrollToY(y); }
       if (history.replaceState) history.replaceState(null, "", id);
     });
@@ -237,8 +256,10 @@
     if (reduceMotion || typeof Lenis === "undefined") return;
     if (window.matchMedia("(pointer: coarse)").matches) return; // touch → native
     const lenis = new Lenis({
-      duration: 1.5,
-      easing: function (t) { return t === 1 ? 1 : 1 - Math.pow(2, -10 * t); }, // expo-out
+      // lerp (frame-rate-independent exponential smoothing) tracks the wheel far
+      // more smoothly than duration+easing, which re-tweens on every discrete
+      // wheel tick and reads as choppy. A low lerp gives an elegant, weighted glide.
+      lerp: 0.08,
       smoothWheel: true,
       wheelMultiplier: 1,
       touchMultiplier: 1
