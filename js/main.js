@@ -210,6 +210,78 @@
     setTimeout(finish, DURATION + 80);
   }
 
+  /* ---- Shared: smooth accordion (true-height, bydiorama-style) ----------- *
+   * Animates the body's REAL measured height instead of a max-height guess,
+   * so opening and closing run the exact distance with no dead time and the
+   * closing item never lingers behind the opening one. While tweening, the
+   * item drops its flex-fill (.is-animating) so the rows slide smoothly;
+   * afterwards it returns to the fluid layout (height:auto / flex:1).
+   * Interruptible: re-toggling mid-tween continues from the on-screen height. */
+  const ACC_DUR = 850;
+  const ACC_EASE = "cubic-bezier(.4, 0, .2, 1)";
+  function accIsOpen(item, activeClass) {
+    return item._accOpen != null ? item._accOpen : item.classList.contains(activeClass);
+  }
+  function accSetOpen(item, body, open, activeClass) {
+    if (!item || !body) return;
+    item._accOpen = open;
+    if (reduceMotion) {
+      item.classList.toggle(activeClass, open);
+      item.classList.remove("is-animating");
+      return;
+    }
+    const isOpen = item.classList.contains(activeClass);
+    const animating = item.classList.contains("is-animating");
+    if (open === isOpen && !animating) return;
+    if (body._accEnd) {
+      body.removeEventListener("transitionend", body._accEnd);
+      clearTimeout(body._accTimer);
+      body._accEnd = null;
+    }
+    const cur = body.offsetHeight;                          // on-screen height (0 when closed)
+    const curOp = getComputedStyle(body).opacity;
+    if (open) {
+      item.classList.remove("is-animating");
+      item.classList.add(activeClass);                      // final (fluid) layout…
+      body.style.transition = "none";
+      body.style.height = "auto";
+      const target = body.offsetHeight;                     // …gives the true fill height
+      item.classList.add("is-animating");                   // freeze the row while tweening
+      body.style.height = cur + "px";
+      body.style.opacity = curOp;
+      void body.offsetHeight;
+      body.style.transition = "height " + ACC_DUR + "ms " + ACC_EASE +
+        ", opacity " + Math.round(ACC_DUR * 0.6) + "ms ease " + Math.round(ACC_DUR * 0.15) + "ms";
+      body.style.height = target + "px";
+      body.style.opacity = "1";
+    } else {
+      item.classList.add("is-animating");
+      body.style.transition = "none";
+      body.style.height = cur + "px";
+      body.style.opacity = curOp;
+      void body.offsetHeight;
+      body.style.transition = "height " + ACC_DUR + "ms " + ACC_EASE +
+        ", opacity " + Math.round(ACC_DUR * 0.45) + "ms ease";
+      body.style.height = "0px";
+      body.style.opacity = "0";
+    }
+    const end = function (e) {
+      if (e && e.propertyName && e.propertyName !== "height") return;
+      if (body._accEnd !== end) return;
+      body.removeEventListener("transitionend", end);
+      clearTimeout(body._accTimer);
+      body._accEnd = null;
+      if (!open) item.classList.remove(activeClass);
+      item.classList.remove("is-animating");
+      body.style.height = "";
+      body.style.transition = "";
+      body.style.opacity = "";
+    };
+    body._accEnd = end;
+    body.addEventListener("transitionend", end);
+    body._accTimer = setTimeout(end, ACC_DUR + 120);       // safety net (throttled tabs)
+  }
+
   /* ---- Shared: smooth anchor scroll (slow, eased) ---------------------- */
   (function () {
     const headerEl = document.querySelector(".site-header");
@@ -315,6 +387,25 @@
       el.classList.add("reveal");
       io.observe(el);
     });
+
+    // accordion divider lines draw in left→right (bydiorama-style): rows get
+    // .line-reveal now (hidden, instant) and .line-in once scrolled into view,
+    // staggered top→bottom within each list via --ld
+    const lineItems = Array.prototype.slice.call(document.querySelectorAll(".offer-item, .evrow, .faq-item"));
+    if (lineItems.length) {
+      const lio = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) { e.target.classList.add("line-in"); lio.unobserve(e.target); }
+        });
+      }, { rootMargin: "0px 0px -8% 0px", threshold: 0.05 });
+      lineItems.forEach(function (el) {
+        if (el.getBoundingClientRect().top < vh * 0.85) return;
+        const sibs = Array.prototype.slice.call(el.parentNode.children);
+        el.style.setProperty("--ld", (sibs.indexOf(el) * 110) + "ms");
+        el.classList.add("line-reveal");
+        lio.observe(el);
+      });
+    }
   })();
 
   /* ---- Header glass: off at the very top, fades in after first scroll --- */
@@ -544,7 +635,7 @@
       idx = 0;
       items.forEach(function (it) {
         const on = it.dataset.cat === cat;
-        it.classList.toggle("is-active", on);
+        accSetOpen(it, it.querySelector(".offer-item__body"), on, "is-active");
         it.querySelector(".offer-item__head").setAttribute("aria-expanded", String(on));
       });
       showImage("up");
@@ -556,9 +647,11 @@
       });
     });
 
-    // hero cards link to #offer (anchor handler scrolls) and open their category
+    // hero cards that link to #offer (anchor handler scrolls) also open their
+    // category; the Events card now goes straight to #events, so it is skipped
     document.querySelectorAll(".hero-card[data-card]").forEach(function (card) {
       card.addEventListener("click", function () {
+        if (card.getAttribute("href") !== "#offer") return;
         var c = card.dataset.card;
         if (galleries[c] && c !== cat) selectCat(c);
       });
@@ -583,7 +676,7 @@
     // Plan data + CTA strings come from js/i18n.js (per current language).
     function pdata() {
       return (window.JT_pricing && window.JT_pricing()) ||
-        { cowork: [], offices: [], ctaInterested: "I am interested", ctaQuote: "Get a quote" };
+        { cowork: [], offices: [], ctaInterested: "I am interested", ctaQuote: "Get a quote", ctaVR: "Explore in VR" };
     }
     let DATA = pdata();
 
@@ -605,19 +698,25 @@
         );
       }).join("");
       const amenRow = amen ? '<div class="price-card__amen">' + amen + "</div>" : "";
+      const pos = c.imgPos ? ' style="object-position:' + c.imgPos + '"' : "";
+      // Figma 614:2724 — cover photo with the plan name on it, description,
+      // desk-includes icons, price, then "I am interested" + "Explore in VR"
       return (
-        '<article class="price-card' + (c.alt ? " price-card--alt" : "") + '">' +
-          '<div class="price-card__header">' +
-            '<div class="price-card__heading">' +
-              '<div class="price-card__title-row"><span class="price-card__name">' + c.name + "</span>" + tag + "</div>" +
-              '<p class="price-card__sub">' + c.sub + "</p>" +
-            "</div>" +
+        '<article class="price-card">' +
+          '<div class="price-card__cover">' +
+            '<img src="' + c.image + '" alt="" width="1200" height="800" loading="lazy" decoding="async"' + pos + ' />' +
+            '<div class="price-card__cover-row"><span class="price-card__name">' + c.name + "</span>" + tag + "</div>" +
           "</div>" +
+          '<p class="price-card__desc">' + c.sub + "</p>" +
           amenRow +
           '<div class="price-card__price-block">' + fromLine +
             '<div class="price-card__price"><span class="price-card__amount">' + c.amount + "</span>" + unit + "</div>" +
           "</div>" +
-          '<a class="price-card__cta" href="#contact" data-interest="' + (c.alt ? "daypass" : "coworking") + '">' + DATA.ctaInterested + "</a>" +
+          '<div class="price-card__actions">' +
+            '<a class="price-card__cta" href="#contact" data-interest="coworking">' + DATA.ctaInterested + "</a>" +
+            '<a class="price-card__vr" href="' + c.vr + '" target="_blank" rel="noopener"><span>' + DATA.ctaVR + '</span>' +
+              '<svg class="ic-3d" viewBox="0 0 16 16" aria-hidden="true"><use href="#ic-3d"/></svg></a>' +
+          "</div>" +
           '<div class="price-card__list">' + items + "</div>" +
         "</article>"
       );
@@ -710,6 +809,12 @@
     document.querySelectorAll(".pricing__tab, .pricing__ctrl").forEach(function (el) {
       el.addEventListener("click", function () { setTab(el.dataset.tab); });
     });
+    // "Small / Medium / Large office" links in the Offer section: the anchor
+    // handler scrolls to #pricing, this switches to the Offices tab
+    document.addEventListener("click", function (e) {
+      const l = e.target.closest("[data-pricing-tab]");
+      if (l) setTab(l.getAttribute("data-pricing-tab"));
+    });
     // left arrow disabled on first tab initially
     document.querySelectorAll(".pricing__ctrl").forEach(function (ct) {
       ct.setAttribute("aria-disabled", String(ct.dataset.tab === current));
@@ -727,6 +832,7 @@
     const IMAGES = {
       "event-hall": "images/events/event-hall.jpg",
       "main-event-hall": "images/events/main-event-hall.jpg",
+      "networking-lobby": "images/events/networking-lobby.jpg",
       "workshop-room": "images/events/workshop-room.jpg",
       "meeting-room": "images/events/meeting-room.jpg"
     };
@@ -743,12 +849,14 @@
     }
 
     function setActive(i, dir) {
+      if (i === active) return;
       active = (i + rows.length) % rows.length;
       rows.forEach(function (r, idx) {
         const on = idx === active;
-        r.classList.toggle("is-active", on);
+        accSetOpen(r, r.querySelector(".evrow__body"), on, "is-active");
         r.querySelector(".evrow__head").setAttribute("aria-expanded", String(on));
       });
+      // the gallery follows the accordion (the arrows that used to page it are gone)
       wipeSwap(eventsStage, eventsImg, IMAGES[rows[active].dataset.space], dir || "up");
       syncInclusion();
     }
@@ -760,15 +868,6 @@
     rows.forEach(function (r, idx) {
       r.querySelector(".evrow__head").addEventListener("click", function () { setActive(idx, "up"); });
     });
-    eventsAccordion
-      .closest(".events")
-      .querySelectorAll(".events__ctrl")
-      .forEach(function (btn) {
-        btn.addEventListener("click", function () {
-          const d = parseInt(btn.dataset.dir, 10);
-          setActive(active + d, d > 0 ? "next" : "prev");
-        });
-      });
   }
 
   /* ---- About: horizontal gallery --------------------------------------- */
@@ -906,10 +1005,14 @@
     }
     items.forEach(function (item) {
       item.querySelector(".faq-item__head").addEventListener("click", function () {
-        const open = item.classList.contains("is-open");
-        items.forEach(function (i) { i.classList.remove("is-open"); });
-        if (!open) item.classList.add("is-open");
-        syncFaqAria();
+        const willOpen = !accIsOpen(item, "is-open");
+        items.forEach(function (i) {
+          if (i !== item && accIsOpen(i, "is-open")) accSetOpen(i, i.querySelector(".faq-item__body"), false, "is-open");
+        });
+        accSetOpen(item, item.querySelector(".faq-item__body"), willOpen, "is-open");
+        items.forEach(function (i) {
+          i.querySelector(".faq-item__head").setAttribute("aria-expanded", String(accIsOpen(i, "is-open")));
+        });
       });
     });
     syncFaqAria();

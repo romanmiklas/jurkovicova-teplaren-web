@@ -22,7 +22,7 @@
     /* header / menu */
     { sel: ".header-actions a.btn--primary", mode: "text", sk: "Kontakt" },
     { sel: ".nav-panel__contact", mode: "text", sk: "Kontakt" },
-    { sel: ".nav-panel__client", mode: "text", sk: "Klientská zóna" },
+    { sel: ".nav-panel__client span", mode: "text", sk: "Klientská zóna" },
     { sel: ".skip-link", mode: "text", sk: "Preskočiť na obsah" },
     { sel: ".nav-panel__link", mode: "text", list: true,
       sk: ["Budova", "Ponuka", "Cenník", "Eventy", "O nás", "Okolie", "FAQ"] },
@@ -52,12 +52,13 @@
       "Uzamykateľný priestor pre tých, čo potrebujú väčšie súkromie a pokoj na prácu. Zariadený a pripravený na nasťahovanie — nič nestaviate ani nedofinancúvate, jednoducho prídete a pracujete.",
       "Moderné priestory pre spoločenské, kultúrne aj networkingové podujatia — školenia, workshopy, semináre, otvorenia či recepcie. K dispozícii členom aj verejnosti, s kompletným vybavením, aby všetko prebehlo hladko a profesionálne."
     ] },
-    { sel: ".offer-item[data-cat=\"cowork\"] .amenity > span", mode: "html", list: true,
+    { sel: ".offer-item[data-cat=\"cowork\"] .chip > span", mode: "html", list: true,
       sk: ["Pracovné vybavenie", "Prístup 24/7", "Spoločné priestory", "Nápoje", "Úschovňa bicyklov", "Wi-Fi pripojenie"] },
-    { sel: ".offer-item[data-cat=\"offices\"] .amenity > span", mode: "html", list: true,
+    { sel: ".offer-item[data-cat=\"offices\"] .chip > span", mode: "html", list: true,
       sk: ["Rôzne veľkosti", "Zasadačky", "Firemné logo", "Služby recepcie", "Wi-Fi pripojenie", "Sídlo firmy"] },
-    { sel: ".offer-item[data-cat=\"events\"] .amenity > span", mode: "html", list: true,
+    { sel: ".offer-item[data-cat=\"events\"] .chip > span", mode: "html", list: true,
       sk: ["Klienti aj verejnosť", "Až do 200 osôb", "Plocha 130 m<sup>2</sup>", "Projektor/plátno", "Audio vybavenie", "Voliteľný catering"] },
+    { sel: ".offer-link span", mode: "text", list: true, sk: ["Malá kancelária", "Stredná kancelária", "Veľká kancelária"] },
 
     /* 04 pricing (static parts; cards are rendered by main.js) */
     { sel: ".pricing__title", mode: "html", sk: "Vyberte si riešenie,<br>ktoré vám najviac vyhovuje." },
@@ -67,18 +68,22 @@
     { sel: ".events__title", mode: "text", sk: "Eventové priestory a zasadačky" },
     { sel: ".events__lead", mode: "text", sk: "Jedinečné priestory vhodné na súkromné aj verejné podujatia." },
     { sel: ".evrow__name", mode: "text", list: true,
-      sk: ["Eventová sála", "Hlavná eventová sála", "Workshopová miestnosť", "Zasadačky"] },
+      sk: ["Eventová sála", "Hlavná eventová sála", "Networking lobby", "Workshopová miestnosť", "Zasadačky"] },
     { sel: ".evrow__desc", mode: "html", list: true, sk: [
       "Univerzálna sála pre semináre a stredne veľké podujatia, s kapacitou 100 osôb. V cene: nábytok, projekcia, ozvučenie, 2× ručný mikrofón a internet.",
       "Výnimočný priestor pre väčšie spoločenské, kultúrne aj biznis podujatia. Je ideálna na networkingové eventy, vernisáže, recepcie či vzdelávacie formáty, ktoré si vyžadujú atmosféru aj profesionálne zázemie.<br>• Priestor je dostupný pre členov coworkingu aj verejnosť.<br>• Kapacita do 200 osôb.",
+      "Otvorená, presvetlená lobby v srdci budovy — prirodzené miesto na recepcie, coffee breaky a neformálny networking pred podujatím či po ňom. Variabilné sedenie, komunitný bar a priamy prístup do eventových sál.",
       "Workshopová miestnosť na druhom podlaží s variabilným usporiadaním a priamym prístupom ku komunitnej zóne coworkingu. Ideálne miesto na školenia, workshopy, či prezentácie.",
       "Komorné, dobre vybavené miestnosti pre porady vedenia, pohovory a menšie stretnutia s klientmi."
     ] },
     { sel: ".evrow__unit", mode: "text", list: true,
       sk: ["/ hodina, bez DPH", "/ hodina, bez DPH", "/ hodina, bez DPH"] },
     { sel: ".evrow[data-space=\"main-event-hall\"] .evrow__amount", mode: "text", sk: "Na vyžiadanie" },
+    { sel: ".evrow[data-space=\"networking-lobby\"] .evrow__amount", mode: "text", sk: "Na vyžiadanie" },
     { sel: ".evrow__cta", mode: "text", list: true,
-      sk: ["Nezáväzný záujem", "Nezáväzný záujem", "Nezáväzný záujem", "Nezáväzný záujem"] },
+      sk: ["Nezáväzný dopyt", "Nezáväzný dopyt", "Nezáväzný dopyt", "Nezáväzný dopyt", "Nezáväzný dopyt"] },
+    { sel: ".evrow__vr span", mode: "text", list: true,
+      sk: ["Pozrieť priestor vo VR", "Pozrieť priestor vo VR", "Pozrieť priestor vo VR", "Pozrieť priestor vo VR", "Pozrieť priestor vo VR"] },
     { sel: ".events__inc-title", mode: "text", sk: "Čo je v cene" },
     { sel: ".inc-card__label", mode: "text", list: true, sk: ["V cene", "Voliteľné", "Externé"] },
     { sel: ".inc-card__title", mode: "text", list: true, sk: ["V prenájme", "Doplnky cez nás", "Partneri tretích strán"] },
@@ -171,19 +176,28 @@
     "Vybrané podujatia a workshopy"
   ];
 
+  /* cowork cards: cover photos + the Matterport tour behind "Explore in VR" */
+  var VR_TOUR = "https://my.matterport.com/show/?m=DKPrZYytU46&ts=0&play=1";
+  var IMG_FIX = "images/pricing/cowork-fixdesk.jpg";
+  var IMG_HOT = "images/pricing/cowork-hotdesk.jpg";
+
   var PRICING = {
     en: {
       ctaInterested: "I am interested",
       ctaQuote: "Get a quote",
+      ctaVR: "Explore in VR",
       cowork: [
-        { name: "Fix Desk", sub: "Your own dedicated desk in the shared workspace.", icon: "desk",
+        { name: "Fix Desk", sub: "A space of your own with a dedicated desk.", icon: "desk",
+          image: IMG_FIX, vr: VR_TOUR,
           amen: [{ i: "chair", t: "High-quality VITRA chair" }, { i: "table", t: "Table" }, { i: "cabinet", t: "File cabinet" }],
           from: "From", amount: "299€", unit: "/ month, excl. VAT", features: COWORK_FULL_EN },
-        { name: "Fix Desk", tag: "Premium", sub: "Your own dedicated desk in a lockable office, with access to the shared areas.", icon: "desk",
+        { name: "Fix Desk", tag: "Premium", sub: "A space of your own with a dedicated desk in a shared lockable office.", icon: "desk",
+          image: IMG_FIX, vr: VR_TOUR,
           amen: [{ i: "chair", t: "High-quality VITRA chair" }, { i: "table", t: "Table" }, { i: "cabinet", t: "File cabinet" }, { i: "office", t: "Lockable office" }],
           from: "From", amount: "319€", unit: "/ month, excl. VAT",
           features: COWORK_FULL_EN.concat(["Reception of mail and parcels"]) },
-        { name: "Hot Desk", sub: "Feel free to drop in anywhere within communal areas", icon: "laptop",
+        { name: "Hot Desk", sub: "Feel free to drop in anywhere within communal areas.", icon: "laptop",
+          image: IMG_HOT, imgPos: "50% 58%", vr: VR_TOUR,
           amen: [{ i: "laptop", t: "Table by your preferences in any of the community zones" }],
           from: "From", amount: "199€", unit: "/ month, excl. VAT", features: [
             "Access during opening hours", "Access to all common areas", "Internet connection",
@@ -212,15 +226,19 @@
     sk: {
       ctaInterested: "Mám záujem",
       ctaQuote: "Získať ponuku",
+      ctaVR: "Pozrieť vo VR",
       cowork: [
-        { name: "Fix Desk", sub: "Vlastný pracovný stôl v spoločných priestoroch.", icon: "desk",
+        { name: "Fix Desk", sub: "Vlastný priestor s vyhradeným pracovným stolom.", icon: "desk",
+          image: IMG_FIX, vr: VR_TOUR,
           amen: [{ i: "chair", t: "Kvalitná stolička značky VITRA" }, { i: "table", t: "Stôl" }, { i: "cabinet", t: "Kartotéka" }],
           from: "Od", amount: "299€", unit: "/ mesiac, bez DPH", features: COWORK_FULL_SK },
-        { name: "Fix Desk", tag: "Premium", sub: "Vlastný pracovný stôl v uzamknutej kancelárii a zázemie spoločných priestorov", icon: "desk",
+        { name: "Fix Desk", tag: "Premium", sub: "Vlastný priestor s vyhradeným stolom v zdieľanej uzamykateľnej kancelárii.", icon: "desk",
+          image: IMG_FIX, vr: VR_TOUR,
           amen: [{ i: "chair", t: "Kvalitná stolička značky VITRA" }, { i: "table", t: "Stôl" }, { i: "cabinet", t: "Kartotéka" }, { i: "office", t: "Uzamykateľná kancelária" }],
           from: "Od", amount: "319€", unit: "/ mesiac, bez DPH",
           features: COWORK_FULL_SK.concat(["Príjem pošty a balíkov"]) },
         { name: "Hot Desk", sub: "Sadnite si, kde je práve voľné — celé spoločné priestory sú vám k dispozícii.", icon: "laptop",
+          image: IMG_HOT, imgPos: "50% 58%", vr: VR_TOUR,
           amen: [{ i: "laptop", t: "Stôl podľa vašich preferencií v ktorejkoľvek z komunitných zón" }],
           from: "Od", amount: "199€", unit: "/ mesiac, bez DPH", features: [
             "Prístup počas otváracích hodín", "Prístup do všetkých spoločných priestorov", "Internetové pripojenie",

@@ -76,6 +76,11 @@
 
   <a class="skip-link" href="#main">Skip to content</a>
 
+  <!-- icon sprite: 3D/VR cube (Figma icon-3D) — reused via <use href="#ic-3d"> -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <symbol id="ic-3d" viewBox="0 0 16 16"><path d="M2 4.61332V11.3933L8 14.7667L14 11.3933V4.61332L8 1.23332L2 4.61332ZM4.02667 5.00666L7.66667 2.95999V7.05332L4.02667 5.00666ZM6.98 8.19999L3.33333 10.2533V6.15332L6.98 8.20666V8.19999ZM7.33333 12.8667L3.68667 10.8133L7.33333 8.75999V12.8667ZM8.66667 8.76666L12.3133 10.82L8.66667 12.8733V8.76666ZM9.02 8.19999L12.6667 6.14666V10.2467L9.02 8.19332V8.19999ZM8.33333 7.05999V2.96666L11.9733 5.01332L8.33333 7.05999Z" fill="currentColor"/></symbol>
+  </svg>
+
   <!-- ================= 00 HEADER ================= -->
   <header class="site-header" id="top">
     <div class="site-header__blur" aria-hidden="true">
@@ -126,14 +131,16 @@
           <a class="nav-panel__link" href="#about" data-nav>About</a>
           <a class="nav-panel__link" href="#amenities" data-nav>Amenities</a>
           <a class="nav-panel__link" href="#faq" data-nav>FAQ</a>
-          <div class="nav-panel__lang">
-            <button class="lang-btn is-active" type="button" data-lang="sk">SK</button>
-            <button class="lang-btn" type="button" data-lang="en">EN</button>
+          <div class="nav-panel__buttons">
+            <div class="nav-panel__lang">
+              <button class="lang-btn is-active" type="button" data-lang="sk">SK</button>
+              <button class="lang-btn" type="button" data-lang="en">EN</button>
+            </div>
+            <a class="nav-panel__client" href="https://member.base4work.sk/login" target="_blank" rel="noopener">
+              <img src="images/icons/icon-user.svg" alt="" width="16" height="16" />
+              <span>Client zone</span>
+            </a>
           </div>
-          <hr class="nav-panel__divider" />
-          <a class="nav-panel__client" href="https://member.base4work.sk/login" target="_blank" rel="noopener">Client zone
-            <svg class="ic-arrow" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h9M9 5l3 3-3 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </a>
         </nav>
       </div>
     </div>
@@ -156,7 +163,7 @@
           <div class="hero__vr">
             <div class="hero__vr-info">
               <span class="hero__vr-menu" aria-hidden="true">
-                <img src="images/icons/icon-3D.svg" alt="" width="16" height="16" />
+                <svg viewBox="0 0 16 16" width="16" height="16"><use href="#ic-3d"/></svg>
               </span>
               <p class="hero__vr-title">Explore the space<br>in virtual reality</p>
             </div>
@@ -195,7 +202,7 @@
           </div>
         </a>
 
-        <a class="hero-card" data-card="events" href="#offer" aria-label="Events — learn more">
+        <a class="hero-card" data-card="events" href="#events" aria-label="Events — learn more">
           <img class="hero-card__img" src="images/hero/events.jpg" alt="Eventový priestor" />
           <div class="hero-card__overlay">
             <h3 class="hero-card__title">Events</h3>
@@ -228,14 +235,18 @@
             <div class="offer-item is-active" data-cat="cowork">
               <button class="offer-item__head" type="button" aria-expanded="true"><span class="offer-item__title">Cowork</span><span class="offer-item__toggle" aria-hidden="true"></span></button>
               <div class="offer-item__body">
-                <p class="offer-item__desc">Fixed or Hot desk. A space of your own. Fully furnished with access to communal areas whenever it suits you. </p>
-                <div class="amenity-grid">
-                  <span class="amenity"><img class="amenity__ic" src="images/icons/chair.svg" alt="" /><span>Work equipment</span></span>
-                  <span class="amenity"><img class="amenity__ic" src="images/icons/mobile-key.svg" alt="" /><span>Mobile key access</span></span>
-                  <span class="amenity"><img class="amenity__ic" src="images/icons/printer.svg" alt="" /><span>Common areas</span></span>
-                  <span class="amenity"><img class="amenity__ic" src="images/icons/cup.svg" alt="" /><span>Drink options</span></span>
-                  <span class="amenity"><img class="amenity__ic" src="images/icons/bike.svg" alt="" /><span>Bike storages</span></span>
-                  <span class="amenity"><img class="amenity__ic" src="images/icons/wifi.svg" alt="" /><span>Wi-fi connection</span></span>
+                <div class="offer-item__inner">
+                  <div class="offer-item__text">
+                    <p class="offer-item__desc">Fixed or Hot desk. A space of your own. Fully furnished with access to communal areas whenever it suits you. </p>
+                  </div>
+                  <div class="offer-chips">
+                    <span class="chip"><img class="chip__ic" src="images/icons/chair.svg" alt="" /><span>Work equipment</span></span>
+                    <span class="chip"><img class="chip__ic" src="images/icons/mobile-key.svg" alt="" /><span>Mobile key access</span></span>
+                    <span class="chip"><img class="chip__ic" src="images/icons/printer.svg" alt="" /><span>Common areas</span></span>
+                    <span class="chip"><img class="chip__ic" src="images/icons/cup.svg" alt="" /><span>Drink options</span></span>
+                    <span class="chip"><img class="chip__ic" src="images/icons/bike.svg" alt="" /><span>Bike storages</span></span>
+                    <span class="chip"><img class="chip__ic" src="images/icons/wifi.svg" alt="" /><span>Wi-fi connection</span></span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -243,14 +254,24 @@
             <div class="offer-item" data-cat="offices">
               <button class="offer-item__head" type="button" aria-expanded="false"><span class="offer-item__title">Offices</span><span class="offer-item__toggle" aria-hidden="true"></span></button>
               <div class="offer-item__body">
-                <p class="offer-item__desc">Lockable secure space focused on clients with higher privacy and security requirements. Furnished and move-in ready, so there's no fit-out to fund and nothing to build.</p>
-                <div class="amenity-grid">
-                  <span class="amenity"><img class="amenity__ic" src="images/icons/maximize.svg" alt="" /><span>Size options</span></span>
-                  <span class="amenity"><img class="amenity__ic" src="images/icons/whiteboard.svg" alt="" /><span>Meeting rooms</span></span>
-                  <span class="amenity"><img class="amenity__ic" src="images/icons/tag.svg" alt="" /><span>Company logo</span></span>
-                  <span class="amenity"><img class="amenity__ic" src="images/icons/icon-reception.svg" alt="" /><span>Reception services</span></span>
-                  <span class="amenity"><img class="amenity__ic" src="images/icons/wifi.svg" alt="" /><span>Wi-fi connection</span></span>
-                  <span class="amenity"><img class="amenity__ic" src="images/icons/inbox.svg" alt="" /><span>Registered address</span></span>
+                <div class="offer-item__inner">
+                  <div class="offer-item__text">
+                    <p class="offer-item__desc">Lockable secure space focused on clients with higher privacy and security requirements. Furnished and move-in ready, so there's no fit-out to fund and nothing to build.</p>
+                    <!-- size links → Pricing section, Offices tab (Figma 617:4958) -->
+                    <div class="offer-links">
+                      <a class="offer-link" href="#pricing" data-pricing-tab="offices"><span>Small office</span><svg class="ic-arrow" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h9M9 5l3 3-3 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+                      <a class="offer-link" href="#pricing" data-pricing-tab="offices"><span>Medium Office</span><svg class="ic-arrow" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h9M9 5l3 3-3 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+                      <a class="offer-link" href="#pricing" data-pricing-tab="offices"><span>Large Office</span><svg class="ic-arrow" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h9M9 5l3 3-3 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+                    </div>
+                  </div>
+                  <div class="offer-chips">
+                    <span class="chip"><img class="chip__ic" src="images/icons/maximize.svg" alt="" /><span>Size options</span></span>
+                    <span class="chip"><img class="chip__ic" src="images/icons/whiteboard.svg" alt="" /><span>Meeting rooms</span></span>
+                    <span class="chip"><img class="chip__ic" src="images/icons/tag.svg" alt="" /><span>Company logo</span></span>
+                    <span class="chip"><img class="chip__ic" src="images/icons/icon-reception.svg" alt="" /><span>Reception services</span></span>
+                    <span class="chip"><img class="chip__ic" src="images/icons/wifi.svg" alt="" /><span>Wi-fi connection</span></span>
+                    <span class="chip"><img class="chip__ic" src="images/icons/inbox.svg" alt="" /><span>Registered address</span></span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -258,14 +279,18 @@
             <div class="offer-item" data-cat="events">
               <button class="offer-item__head" type="button" aria-expanded="false"><span class="offer-item__title">Events</span><span class="offer-item__toggle" aria-hidden="true"></span></button>
               <div class="offer-item__body">
-                <p class="offer-item__desc">Modern premises for the organization of social, cultural and networking events. Ideal for trainings, workshops, educational seminars, openings or receptions. Available for members and the public, with facilities for a comfortable and professional running of any event.</p>
-                <div class="amenity-grid">
-                  <span class="amenity"><img class="amenity__ic" src="images/icons/check.svg" alt="" /><span>Clients or public</span></span>
-                  <span class="amenity"><img class="amenity__ic" src="images/icons/community.svg" alt="" /><span>For up to 200 people</span></span>
-                  <span class="amenity"><img class="amenity__ic" src="images/icons/area.svg" alt="" /><span>130 m<sup>2</sup> area</span></span>
-                  <span class="amenity"><img class="amenity__ic" src="images/icons/whiteboard.svg" alt="" /><span>Projector/screen</span></span>
-                  <span class="amenity"><img class="amenity__ic" src="images/icons/microphone.svg" alt="" /><span>Audio equipment</span></span>
-                  <span class="amenity"><img class="amenity__ic" src="images/icons/fork.svg" alt="" /><span>Optional catering</span></span>
+                <div class="offer-item__inner">
+                  <div class="offer-item__text">
+                    <p class="offer-item__desc">Modern premises for the organization of social, cultural and networking events. Ideal for trainings, workshops, educational seminars, openings or receptions. Available for members and the public, with facilities for a comfortable and professional running of any event.</p>
+                  </div>
+                  <div class="offer-chips">
+                    <span class="chip"><img class="chip__ic" src="images/icons/check.svg" alt="" /><span>Clients or public</span></span>
+                    <span class="chip"><img class="chip__ic" src="images/icons/community.svg" alt="" /><span>For up to 200 people</span></span>
+                    <span class="chip"><img class="chip__ic" src="images/icons/area.svg" alt="" /><span>130 m<sup>2</sup> area</span></span>
+                    <span class="chip"><img class="chip__ic" src="images/icons/whiteboard.svg" alt="" /><span>Projector/screen</span></span>
+                    <span class="chip"><img class="chip__ic" src="images/icons/microphone.svg" alt="" /><span>Audio equipment</span></span>
+                    <span class="chip"><img class="chip__ic" src="images/icons/fork.svg" alt="" /><span>Optional catering</span></span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -318,14 +343,6 @@
       <div class="events__selector">
         <div class="events__image">
           <img id="eventsImg" src="images/events/workshop-room.jpg" alt="Eventový priestor" width="1104" height="1228" loading="lazy" decoding="async" />
-          <div class="events__controls">
-            <button class="events__ctrl" type="button" data-dir="-1" aria-label="Previous space">
-              <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M13 8H3M7 4 3 8l4 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </button>
-            <button class="events__ctrl" type="button" data-dir="1" aria-label="Next space">
-              <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </button>
-          </div>
         </div>
         <div class="events__spacer"></div>
         <div class="events__spacer"></div>
@@ -334,40 +351,75 @@
           <div class="evrow" data-space="event-hall">
             <button class="evrow__head" type="button"><span class="evrow__name">Event hall</span><span class="evrow__toggle"></span></button>
             <div class="evrow__body">
-              <p class="evrow__desc">A versatile hall for seminars and mid-size events, with room for 100 people. Included in the price: furniture, projection, sound system, 2× hand microphones and internet.</p>
-              <div class="evrow__price">
-                <p class="evrow__amount-line"><span class="evrow__amount">250€</span><span class="evrow__unit">/ hour, excl. VAT</span></p>
-                <a class="evrow__cta" href="#contact" data-interest="event">Enquire</a>
+              <div class="evrow__inner">
+                <p class="evrow__desc">A versatile hall for seminars and mid-size events, with room for 100 people. Included in the price: furniture, projection, sound system, 2× hand microphones and internet.</p>
+                <div class="evrow__price">
+                  <p class="evrow__amount-line"><span class="evrow__amount">250€</span><span class="evrow__unit">/ hour, excl. VAT</span></p>
+                  <div class="evrow__actions">
+                    <a class="evrow__cta" href="#contact" data-interest="event">Enquire space</a>
+                    <a class="evrow__vr" href="https://my.matterport.com/show/?m=DKPrZYytU46&ts=0&play=1&ss=107&sr=-1.29,-1.42" target="_blank" rel="noopener"><span>View space in VR</span><svg class="ic-3d" viewBox="0 0 16 16" aria-hidden="true"><use href="#ic-3d"/></svg></a>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
           <div class="evrow" data-space="main-event-hall">
             <button class="evrow__head" type="button"><span class="evrow__name">Main event hall</span><span class="evrow__toggle"></span></button>
             <div class="evrow__body">
-              <p class="evrow__desc">An exceptional space for larger social, cultural and business events. Ideal for networking events, exhibition openings, receptions or educational formats that call for atmosphere and professional facilities.<br>• Available to coworking members and the public.<br>• Capacity up to 200 people.</p>
-              <div class="evrow__price">
-                <p class="evrow__amount-line"><span class="evrow__amount">On request</span></p>
-                <a class="evrow__cta" href="#contact" data-interest="event">Enquire</a>
+              <div class="evrow__inner">
+                <p class="evrow__desc">An exceptional space for larger social, cultural and business events. Ideal for networking events, exhibition openings, receptions or educational formats that call for atmosphere and professional facilities.<br>• Available to coworking members and the public.<br>• Capacity up to 200 people.</p>
+                <div class="evrow__price">
+                  <p class="evrow__amount-line"><span class="evrow__amount">On request</span></p>
+                  <div class="evrow__actions">
+                    <a class="evrow__cta" href="#contact" data-interest="event">Enquire space</a>
+                    <a class="evrow__vr" href="https://my.matterport.com/show/?m=DKPrZYytU46&ts=0&play=1&ss=27&sr=-1.82,1.5" target="_blank" rel="noopener"><span>View space in VR</span><svg class="ic-3d" viewBox="0 0 16 16" aria-hidden="true"><use href="#ic-3d"/></svg></a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="evrow" data-space="networking-lobby">
+            <button class="evrow__head" type="button"><span class="evrow__name">Networking lobby</span><span class="evrow__toggle"></span></button>
+            <div class="evrow__body">
+              <div class="evrow__inner">
+                <p class="evrow__desc">An open, light-filled lobby at the heart of the building — the natural spot for receptions, coffee breaks and informal networking before or after your event. Flexible seating, a community bar and direct access to the event halls.</p>
+                <div class="evrow__price">
+                  <p class="evrow__amount-line"><span class="evrow__amount">On request</span></p>
+                  <div class="evrow__actions">
+                    <a class="evrow__cta" href="#contact" data-interest="event">Enquire space</a>
+                    <a class="evrow__vr" href="https://my.matterport.com/show/?m=ro2yLGBB8oc&play=1&ss=132&sr=-.19,-.84" target="_blank" rel="noopener"><span>View space in VR</span><svg class="ic-3d" viewBox="0 0 16 16" aria-hidden="true"><use href="#ic-3d"/></svg></a>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
           <div class="evrow is-active" data-space="workshop-room">
             <button class="evrow__head" type="button"><span class="evrow__name">Workshop room</span><span class="evrow__toggle"></span></button>
             <div class="evrow__body">
-              <p class="evrow__desc">A workshop room on the second floor with a flexible layout and direct access to the coworking community zone. An ideal place for trainings, workshops or presentations.</p>
-              <div class="evrow__price">
-                <p class="evrow__amount-line"><span class="evrow__amount">120€</span><span class="evrow__unit">/ hour, excl. VAT</span></p>
-                <a class="evrow__cta" href="#contact" data-interest="event">Enquire</a>
+              <div class="evrow__inner">
+                <p class="evrow__desc">A workshop room on the second floor with a flexible layout and direct access to the coworking community zone. An ideal place for trainings, workshops or presentations.</p>
+                <div class="evrow__price">
+                  <p class="evrow__amount-line"><span class="evrow__amount">120€</span><span class="evrow__unit">/ hour, excl. VAT</span></p>
+                  <div class="evrow__actions">
+                    <a class="evrow__cta" href="#contact" data-interest="event">Enquire space</a>
+                    <a class="evrow__vr" href="https://my.matterport.com/show/?m=ro2yLGBB8oc&play=1&ss=71&sr=-.48,-1.06" target="_blank" rel="noopener"><span>View space in VR</span><svg class="ic-3d" viewBox="0 0 16 16" aria-hidden="true"><use href="#ic-3d"/></svg></a>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
           <div class="evrow" data-space="meeting-room">
             <button class="evrow__head" type="button"><span class="evrow__name">Meeting rooms</span><span class="evrow__toggle"></span></button>
             <div class="evrow__body">
-              <p class="evrow__desc">Intimate, well-equipped rooms for board meetings, interviews and small client sessions.</p>
-              <div class="evrow__price">
-                <p class="evrow__amount-line"><span class="evrow__amount">60€</span><span class="evrow__unit">/ hour, excl. VAT</span></p>
-                <a class="evrow__cta" href="#contact" data-interest="event">Enquire</a>
+              <div class="evrow__inner">
+                <p class="evrow__desc">Intimate, well-equipped rooms for board meetings, interviews and small client sessions.</p>
+                <div class="evrow__price">
+                  <p class="evrow__amount-line"><span class="evrow__amount">60€</span><span class="evrow__unit">/ hour, excl. VAT</span></p>
+                  <div class="evrow__actions">
+                    <a class="evrow__cta" href="#contact" data-interest="event">Enquire space</a>
+                    <a class="evrow__vr" href="https://my.matterport.com/show/?m=ro2yLGBB8oc&play=1&ss=32&sr=-2.03,1.4" target="_blank" rel="noopener"><span>View space in VR</span><svg class="ic-3d" viewBox="0 0 16 16" aria-hidden="true"><use href="#ic-3d"/></svg></a>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -506,33 +558,33 @@
       <div class="faq__list" id="faqList">
         <div class="faq-item is-open">
           <button class="faq-item__head" type="button"><span class="faq-item__q">What's included in the cowork desk price?</span><span class="faq-item__toggle"></span></button>
-          <div class="faq-item__body"><ul class="faq-item__list">
+          <div class="faq-item__body"><div class="faq-item__inner"><ul class="faq-item__list">
             <li><strong>Fix Desk —</strong> your own dedicated desk with 24/7 access, all common areas, internet, refreshments and monthly meeting-room and printing credits.</li>
             <li><strong>Fix Desk Premium —</strong> everything in Fix Desk, plus your desk in a lockable office and reception of mail and parcels.</li>
             <li><strong>Hot Desk —</strong> flexible seating anywhere in the communal areas during opening hours, with access to all common areas and member services.</li>
-          </ul></div>
+          </ul></div></div>
         </div>
         <div class="faq-item">
           <button class="faq-item__head" type="button"><span class="faq-item__q">What services do we provide to our members?</span><span class="faq-item__toggle"></span></button>
-          <div class="faq-item__body"><p>Members receive day-to-day operational service — regular cleaning, plant care, servicing of coffee machines and printers, restocking of consumables, reception services and support from the coworking team. Membership also includes community activities and selected benefits.</p></div>
+          <div class="faq-item__body"><div class="faq-item__inner"><p>Members receive day-to-day operational service — regular cleaning, plant care, servicing of coffee machines and printers, restocking of consumables, reception services and support from the coworking team. Membership also includes community activities and selected benefits.</p></div></div>
         </div>
         <div class="faq-item">
           <button class="faq-item__head" type="button"><span class="faq-item__q">How do you find us?</span><span class="faq-item__toggle"></span></button>
-          <div class="faq-item__body"><p>Jurkovičova Tepláreň is located within the SKY PARK complex. You can come on foot, by car or by public transport. If you arrive by car, you can park in the underground garage for €3 / hour. For easier orientation, take a look at our navigation maps or short videos showing the route by car and on foot.</p>
+          <div class="faq-item__body"><div class="faq-item__inner"><p>Jurkovičova Tepláreň is located within the SKY PARK complex. You can come on foot, by car or by public transport. If you arrive by car, you can park in the underground garage for €3 / hour. For easier orientation, take a look at our navigation maps or short videos showing the route by car and on foot.</p>
             <a class="faq-map-btn" href="https://maps.app.goo.gl/knRN8474ndcZ8VuG8" target="_blank" rel="noopener">Show map</a>
-          </div>
+          </div></div>
         </div>
         <div class="faq-item">
           <button class="faq-item__head" type="button"><span class="faq-item__q">What can you make use of here?</span><span class="faq-item__toggle"></span></button>
-          <div class="faq-item__body"><p>Members have access to fully equipped community kitchens, lounge zones, phone booths, a shower, cycling facilities, meeting rooms of various sizes, and spaces for workshops, training and events. Storage space and parking can also be arranged on request.</p></div>
+          <div class="faq-item__body"><div class="faq-item__inner"><p>Members have access to fully equipped community kitchens, lounge zones, phone booths, a shower, cycling facilities, meeting rooms of various sizes, and spaces for workshops, training and events. Storage space and parking can also be arranged on request.</p></div></div>
         </div>
         <div class="faq-item">
           <button class="faq-item__head" type="button"><span class="faq-item__q">What sets us apart from other coworkings?</span><span class="faq-item__toggle"></span></button>
-          <div class="faq-item__body"><p>Jurkovičova Tepláreň is more than a coworking. It's a workspace with character that combines premium equipment, a designer interior, modern technology and the unique atmosphere of a national cultural monument. Beyond flexible desks, offices and meeting rooms, you also get professional service, smart app-based access and the backing of an established business community. The space is run by Alto Real Estate, so you can expect stability, quality and a standard that goes beyond ordinary coworking.</p></div>
+          <div class="faq-item__body"><div class="faq-item__inner"><p>Jurkovičova Tepláreň is more than a coworking. It's a workspace with character that combines premium equipment, a designer interior, modern technology and the unique atmosphere of a national cultural monument. Beyond flexible desks, offices and meeting rooms, you also get professional service, smart app-based access and the backing of an established business community. The space is run by Alto Real Estate, so you can expect stability, quality and a standard that goes beyond ordinary coworking.</p></div></div>
         </div>
         <div class="faq-item">
           <button class="faq-item__head" type="button"><span class="faq-item__q">Can I try the coworking before buying a membership?</span><span class="faq-item__toggle"></span></button>
-          <div class="faq-item__body"><p>Yes. We'd be happy to let you experience the atmosphere of Jurkovičova Tepláreň in person. A trial day is possible by prior arrangement — just contact us by email or phone.</p></div>
+          <div class="faq-item__body"><div class="faq-item__inner"><p>Yes. We'd be happy to let you experience the atmosphere of Jurkovičova Tepláreň in person. A trial day is possible by prior arrangement — just contact us by email or phone.</p></div></div>
         </div>
       </div>
     </section>

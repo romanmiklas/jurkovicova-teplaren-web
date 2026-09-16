@@ -119,6 +119,11 @@ html.lenis, html.lenis body { height: auto; }
 @media (prefers-reduced-motion: reduce) {
   .reveal { opacity: 1; transform: none; transition: none; }
 }
+/* accordion divider lines draw in left→right (bydiorama-style). JS adds
+   .line-reveal (line parked off to the left, no transition so nothing slides
+   out) and then .line-in on scroll-in, which lets the row's own transform
+   transition run it in; --ld staggers rows within a list. */
+.line-reveal:not(.line-in)::before { transform: translateX(-101%); transition: none; }
 button { font-family: inherit; cursor: pointer; border: none; background: none; }
 ul { list-style: none; margin: 0; padding: 0; }
 
@@ -334,17 +339,25 @@ body.menu-open .header-actions { visibility: hidden; }
 .lang-btn:first-child { border-radius: var(--radius-tiny) 0 0 var(--radius-tiny); border-right: none; }
 .lang-btn:last-child { border-radius: 0 var(--radius-tiny) var(--radius-tiny) 0; }
 .lang-btn.is-active { background: var(--stone-100); color: var(--stone-900); border-color: var(--stone-100); }
-.nav-panel__divider { width: 100%; height: 0; margin: 0; border: none; border-top: 1px solid var(--stone-100-20); }
+.nav-panel__buttons { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+/* Client zone — filled button with the user icon (Figma 617:5209) */
 .nav-panel__client {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 40px;
+  padding: 0 8px;
+  border-radius: var(--radius-tiny);
+  background: var(--stone-100-20);
   font-size: 16px;
   line-height: 1;
   letter-spacing: 0.48px;
   color: var(--stone-100);
 }
-.nav-panel__client:hover { opacity: .7; }
+.nav-panel__client img { width: 16px; height: 16px; flex: 0 0 16px; }
+.nav-panel__client:hover { background: rgba(255, 246, 242, 0.32); }
 
 .btn--lg {
   height: 48px;
@@ -465,7 +478,8 @@ body.menu-open .header-actions { visibility: hidden; }
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-tiny);
-  background: var(--stone-100);
+  background: var(--terracota-750);
+  color: var(--stone-100);
 }
 .hero__vr-menu svg,
 .hero__vr-menu img { width: 16px; height: 16px; display: block; }
@@ -502,7 +516,7 @@ body.menu-open .header-actions { visibility: hidden; }
   position: relative;
   display: flex;
   gap: 8px;
-  height: 480px;
+  height: 520px;
   width: 100%;
 }
 .hero-card {
@@ -655,15 +669,28 @@ body.menu-open .header-actions { visibility: hidden; }
   min-height: 614px;
 }
 
-/* accordion */
+/* accordion — the body's real height is animated by accSetOpen() in main.js
+   (no max-height guess → no dead time, no lingering previous item); the top
+   divider is a ::before line that draws in left→right on scroll */
 .offer__accordion { flex: 1; display: flex; flex-direction: column; }
-.offer-item { border-top: 1px solid var(--stone-100-20); }
+.offer-item { position: relative; overflow: hidden; }
+.offer-item::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 1px;
+  background: var(--stone-100-20);
+  transition: background-color .56s ease, transform 1.26s cubic-bezier(.16, 1, .3, 1) var(--ld, 0ms);
+}
+.offer-item.is-active::before { background: var(--stone-100); }
 .offer-item.is-active {
-  border-top-color: var(--stone-100);
   flex: 1 1 auto;
   display: flex;
   flex-direction: column;
 }
+.offer-item.is-animating { flex: 0 0 auto; }
 .offer-item__head {
   display: flex;
   align-items: center;
@@ -673,10 +700,9 @@ body.menu-open .header-actions { visibility: hidden; }
   text-align: left;
   padding: 24px 0;
 }
-.offer-item.is-active .offer-item__head { padding-bottom: 0; }
 .offer-item__title {
-  font-size: 24px;
-  line-height: 1;
+  font-size: 30px;
+  line-height: 1.2;
   color: var(--stone-100-20);
   transition: color .42s ease;
 }
@@ -695,20 +721,23 @@ body.menu-open .header-actions { visibility: hidden; }
 
 .offer-item__body {
   overflow: hidden;
-  max-height: 0;
+  height: 0;
   opacity: 0;
-  transition: max-height 1.05s cubic-bezier(0.4, 0, 0.2, 1), opacity .84s cubic-bezier(0.4, 0, 0.2, 1), padding 1.05s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
 }
-.offer-item.is-active .offer-item__body {
+.offer-item.is-active .offer-item__body { height: auto; opacity: 1; flex: 1; }
+.offer-item.is-animating .offer-item__body { flex: none; }
+/* padding lives INSIDE the animated box so a 0-height body is truly 0 */
+.offer-item__inner {
   flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  max-height: 460px;
-  opacity: 1;
-  padding-top: 32px;
-  padding-bottom: 24px;
+  gap: 40px;
+  padding: 8px 0 24px;   /* 24px head padding + 8 = the design's 32px title→text gap */
 }
+.offer-item__text { display: flex; flex-direction: column; gap: 32px; }
 .offer-item__desc {
   margin: 0;
   font-size: 16px;
@@ -716,32 +745,42 @@ body.menu-open .header-actions { visibility: hidden; }
   color: var(--stone-100-50);
 }
 
-/* amenities grid */
-.amenity-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  column-gap: 24px;
-  row-gap: 16px;
-  padding: 8px 16px 8px 8px;
-  border-radius: var(--radius-small);
-  background: rgba(255, 246, 242, 0.1);
-}
-.amenity {
-  display: flex;
+/* office size links → Pricing / Offices tab (Figma 617:4958) */
+.offer-links { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+.offer-link {
+  display: inline-flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 0;
+  gap: 8px;
+  height: 32px;
+  padding: 0 8px 0 10px;
+  border-radius: var(--radius-tiny);
+  background: var(--stone-950);
+  color: var(--stone-100);
+  font-size: 16px;
+  letter-spacing: 0.48px;
+  line-height: 1;
+  white-space: nowrap;
 }
-.amenity:nth-child(3n+1) { padding-left: 8px; }
-.amenity__ic { width: 16px; height: 16px; flex: 0 0 16px; }
-.amenity > span:last-child {
+.offer-link:hover { background: var(--terracota-500); }
+
+/* amenity chips — outlined pills that wrap in rows (Figma 614:2678) */
+.offer-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 12px 0 8px;
+  border: 1px solid var(--stone-100-20);
+  border-radius: var(--radius-tiny);
   font-size: 14px;
-  line-height: 1.4;
   letter-spacing: 0.42px;
+  line-height: 1.4;
   color: var(--stone-100);
   white-space: nowrap;
 }
-.amenity sup { font-size: 9px; }
+.chip__ic { width: 16px; height: 16px; flex: 0 0 16px; }
+.chip sup { font-size: 9px; }
 
 /* gallery — fixed 552px; the centre gutter absorbs the remaining width
    and is the first thing to shrink on narrower viewports */
@@ -794,10 +833,8 @@ body.menu-open .header-actions { visibility: hidden; }
   color: var(--stone-100);
   transition: background-color .49s ease, transform .49s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.offer__ctrl:hover { background: var(--terracota-500); }
-.offer__ctrl svg { width: 16px; height: 16px; transition: transform .56s cubic-bezier(0.16, 1, 0.3, 1); }
-.offer__ctrl[data-dir="-1"]:hover svg { transform: translateX(-4px); }
-.offer__ctrl[data-dir="1"]:hover svg { transform: translateX(4px); }
+.offer__ctrl:hover { background: var(--terracota-500); scale: 1.06; }
+.offer__ctrl svg { width: 16px; height: 16px; }
 
 /* ====================================================================== */
 /*  04 — PRICING                                                           */
@@ -864,37 +901,54 @@ body.menu-open .header-actions { visibility: hidden; }
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 24px;
   padding: 24px;
   border-radius: var(--radius-large);
   background: var(--light-tan);
   overflow: hidden;
 }
-.price-card--alt { background: var(--stone-300); }
 
-.price-card__header {
+/* cover photo with the plan name (+ tag) overlaid bottom-left (614:3863) */
+.price-card__cover {
+  position: relative;
+  height: 160px;
+  border-radius: var(--radius-tiny);
+  overflow: hidden;
   display: flex;
-  gap: 20px;
-  align-items: flex-start;
-  min-height: 72px;
+  align-items: flex-end;
+  padding: 20px 20px 24px;
 }
-.price-card__heading { flex: 1; display: flex; flex-direction: column; gap: 16px; min-width: 0; }
-.price-card__title-row { display: flex; gap: 12px; align-items: flex-start; }
+.price-card__cover img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+.price-card__cover::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(102, 102, 102, 0), rgba(0, 0, 0, 0.6));
+}
+.price-card__cover-row { position: relative; z-index: 1; display: flex; align-items: center; gap: 16px; }
+.price-card__cover .price-card__name { font-size: 30px; line-height: 1.2; color: var(--stone-100); }
 .price-card__name { font-size: 24px; line-height: 1; color: var(--stone-900); white-space: nowrap; }
 .price-card__tag {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 22px;
+  height: 24px;
   padding: 0 8px;
   border-radius: var(--radius-tiny);
-  background: var(--stone-100);
+  background: var(--terracota-500);
   font-size: 14px;
-  font-weight: 500;
   line-height: 1.4;
-  color: var(--terracota-500);
+  color: var(--stone-100);
   white-space: nowrap;
 }
+.price-card__desc { margin: 0; font-size: 16px; line-height: 1.5; color: var(--stone-900); min-height: 48px; }
 .price-card__sub { font-size: 14px; line-height: 1.4; color: var(--stone-900); max-width: 208px; min-height: 60px; }
 /* office sub spans the full card width and reserves equal height so the
    images below line up across the three office cards */
@@ -981,6 +1035,28 @@ body.menu-open .header-actions { visibility: hidden; }
   transition: background-color .28s ease;
 }
 .price-card__cta:hover { background: #a25430; }
+
+/* "I am interested" + "Explore in VR" side by side (614:4073) */
+.price-card__actions { display: flex; gap: 8px; }
+.price-card__actions .price-card__cta { flex: 1 1 0; min-width: 0; padding: 10px 16px; }
+.price-card__vr {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 48px;
+  padding: 10px 20px;
+  border-radius: var(--radius-tiny);
+  background: var(--stone-900-muted-2);
+  color: var(--stone-900);
+  font-size: 16px;
+  letter-spacing: 0.48px;
+  line-height: 1;
+  white-space: nowrap;
+}
+.price-card__vr:hover { background: var(--stone-900); color: var(--stone-100); }
+.ic-3d { width: 16px; height: 16px; flex: 0 0 16px; display: block; }
 
 .price-card__list { display: flex; flex-direction: column; gap: 12px; }
 .price-card__item { display: flex; gap: 8px; align-items: center; }
@@ -1073,30 +1149,24 @@ body.menu-open .header-actions { visibility: hidden; }
   object-fit: cover;
   object-position: center;
 }
-.events__controls { position: absolute; left: 24px; bottom: 23px; display: flex; gap: 4px; z-index: 2; }
-.events__ctrl {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius-small);
-  background: var(--stone-100-20);
-  backdrop-filter: blur(var(--blur));
-  -webkit-backdrop-filter: blur(var(--blur));
-  color: var(--stone-100);
-  transition: background-color .49s ease, transform .49s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.events__ctrl:hover { background: var(--terracota-500); }
-.events__ctrl svg { width: 16px; height: 16px; transition: transform .56s cubic-bezier(0.16, 1, 0.3, 1); }
-.events__ctrl[data-dir="-1"]:hover svg { transform: translateX(-4px); }
-.events__ctrl[data-dir="1"]:hover svg { transform: translateX(4px); }
 .events__spacer { display: none; }
 
-/* accordion of space types */
+/* accordion of space types — same true-height mechanics + line draw as Offer;
+   the image on the left simply follows the open row (no paging arrows) */
 .events__list { flex: 0 0 552px; display: flex; flex-direction: column; }
-.evrow { border-top: 1px solid var(--stone-900); }
+.evrow { position: relative; overflow: hidden; }
+.evrow::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 1px;
+  background: var(--stone-900);
+  transition: transform 1.26s cubic-bezier(.16, 1, .3, 1) var(--ld, 0ms);
+}
 .evrow.is-active { flex: 1 1 auto; display: flex; flex-direction: column; }
+.evrow.is-animating { flex: 0 0 auto; }
 .evrow__head {
   display: flex;
   align-items: center;
@@ -1117,41 +1187,42 @@ body.menu-open .header-actions { visibility: hidden; }
 .evrow__toggle::after { top: 2px; bottom: 2px; left: 9.25px; width: 1.5px; transition: opacity .525s cubic-bezier(0.4, 0, 0.2, 1); }
 .evrow.is-active .evrow__toggle::after { opacity: 0; }
 
-.evrow.is-active .evrow__head { padding-bottom: 0; }
 .evrow__body {
   overflow: hidden;
-  max-height: 0;
+  height: 0;
   opacity: 0;
-  transition: max-height .945s cubic-bezier(0.4, 0, 0.2, 1), opacity .84s cubic-bezier(0.4, 0, 0.2, 1), padding .945s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
 }
-.evrow.is-active .evrow__body {
+.evrow.is-active .evrow__body { height: auto; opacity: 1; flex: 1; }
+.evrow.is-animating .evrow__body { flex: none; }
+.evrow__inner {
   flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  max-height: 360px;
-  opacity: 1;
-  padding-top: 32px;
-  padding-bottom: 24px;
+  gap: 24px;
+  padding: 8px 0 24px;   /* 24px head padding + 8 = the design's 32px title→text gap */
 }
 .evrow__desc { margin: 0; font-size: 16px; line-height: 1.5; color: var(--stone-900); }
+/* price on its own line, the two buttons underneath (Figma 614:2754) */
 .evrow__price {
   display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 8px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 24px;
   padding-top: 24px;
 }
-.evrow__amount-line { margin: 0; display: flex; align-items: flex-end; gap: 8px; color: var(--stone-900); }
+.evrow__amount-line { margin: 0; display: flex; align-items: flex-end; gap: 8px; padding: 7px 0; color: var(--stone-900); }
 .evrow__amount { font-size: 48px; line-height: 1; }
 .evrow__unit { font-size: 14px; letter-spacing: 0.42px; line-height: 1.4; }
+.evrow__actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-start; }
 .evrow__cta {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  align-self: flex-end;
   height: 40px;
-  padding: 0 20px;
+  padding: 0 16px;
   border-radius: var(--radius-tiny);
   background: var(--terracota-500);
   color: var(--stone-100);
@@ -1162,6 +1233,23 @@ body.menu-open .header-actions { visibility: hidden; }
   transition: background-color .28s ease;
 }
 .evrow__cta:hover { background: #a25430; }
+/* "View space in VR" — cream button, terracotta text + cube icon (618:5330) */
+.evrow__vr {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 40px;
+  padding: 0 16px;
+  border-radius: var(--radius-tiny);
+  background: var(--stone-100);
+  color: var(--terracota-500);
+  font-size: 16px;
+  letter-spacing: 0.48px;
+  line-height: 1;
+  white-space: nowrap;
+}
+.evrow__vr:hover { background: var(--terracota-500); color: var(--stone-100); }
 
 /* inclusion */
 .events__inclusion { display: flex; flex-direction: column; gap: 40px; }
@@ -1259,7 +1347,7 @@ body.menu-open .header-actions { visibility: hidden; }
   color: var(--stone-100);
   transition: opacity .28s ease, background-color .28s ease;
 }
-.about__ctrl:hover { background: rgba(255, 246, 242, 0.35); }
+.about__ctrl:hover { background: rgba(255, 246, 242, 0.35); scale: 1.06; }
 .about__ctrl[aria-disabled="true"] { opacity: .35; pointer-events: none; }
 .about__ctrl svg { width: 16px; height: 16px; }
 
@@ -1471,7 +1559,17 @@ body.menu-open .header-actions { visibility: hidden; }
 .faq__spacer { flex: 0 0 92px; }
 .faq__list { flex: 0 0 552px; display: flex; flex-direction: column; }
 
-.faq-item { border-top: 1px solid var(--stone-100-20); color: var(--stone-100); }
+.faq-item { position: relative; overflow: hidden; color: var(--stone-100); }
+.faq-item::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 1px;
+  background: var(--stone-100-20);
+  transition: transform 1.26s cubic-bezier(.16, 1, .3, 1) var(--ld, 0ms);
+}
 .faq-item__head {
   display: flex;
   align-items: center;
@@ -1488,14 +1586,9 @@ body.menu-open .header-actions { visibility: hidden; }
 .faq-item__toggle::before { left: 2px; right: 2px; top: 9.25px; height: 1.5px; }
 .faq-item__toggle::after { top: 2px; bottom: 2px; left: 9.25px; width: 1.5px; transition: opacity .525s cubic-bezier(0.4, 0, 0.2, 1); }
 .faq-item.is-open .faq-item__toggle::after { opacity: 0; }
-.faq-item.is-open .faq-item__head { padding-bottom: 0; }
-.faq-item__body {
-  overflow: hidden;
-  max-height: 0;
-  opacity: 0;
-  transition: max-height .84s cubic-bezier(0.4, 0, 0.2, 1), opacity .735s cubic-bezier(0.4, 0, 0.2, 1), padding .84s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.faq-item.is-open .faq-item__body { max-height: 520px; opacity: 1; padding-bottom: 24px; padding-top: 4px; }
+.faq-item__body { overflow: hidden; height: 0; opacity: 0; }
+.faq-item.is-open .faq-item__body { height: auto; opacity: 1; }
+.faq-item__inner { padding: 0 0 24px; }
 .faq-item__body p { margin: 0; font-size: 14px; line-height: 1.4; color: var(--stone-100-50); }
 .faq-item__list { margin: 0; padding-left: 1.1em; display: flex; flex-direction: column; gap: 8px; }
 .faq-item__list li { font-size: 14px; line-height: 1.4; color: var(--stone-100-50); }
@@ -1755,13 +1848,12 @@ body.menu-open .header-actions { visibility: hidden; }
   .offer__gallery { flex: 0 0 auto; width: 100%; height: 420px; }
   /* desc and amenity grid were touching when the content filled the height —
      give them a fixed 40px gap (top-aligned) instead of space-between */
-  .offer-item.is-active .offer-item__body { max-height: 560px; justify-content: flex-start; gap: 40px; }
+  .offer-item__inner { justify-content: flex-start; }
 
   /* events */
   .events__selector { flex-direction: column; justify-content: flex-start; height: auto; gap: 32px; }
   .events__image { flex: 0 0 auto; width: 100%; height: 420px; }
   .events__list { flex: 0 0 auto; width: 100%; }
-  .evrow.is-active .evrow__body { max-height: 480px; }
   .events__inc-cards { flex-wrap: wrap; }
   .inc-card { flex: 1 1 calc(50% - 12px); }
 
@@ -1907,17 +1999,18 @@ body.menu-open .header-actions { visibility: hidden; }
   .tour__cards { flex-direction: column; align-items: stretch; }
   .tour__card { flex: 0 0 240px; width: 100%; height: 240px; }
 
-  /* offer: amenity chips in a 2-column grid on mobile — keeps the box padding
-     8/16/8/8 and the 24px column gap (Figma spec at 393px / 329px container) */
-  .amenity-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .amenity:nth-child(3n+1) { padding-left: 0; }
-  .amenity:nth-child(odd) { padding-left: 8px; }
+  /* offer: the chips simply wrap on narrow screens */
 
   /* events: price + full-width CTA stacked (bigger tap target); body flows
      to its natural height instead of a fixed panel with the price pinned down */
-  .evrow.is-active .evrow__body { flex: none; justify-content: flex-start; gap: 24px; max-height: 640px; }
-  .evrow__price { flex-direction: column; align-items: stretch; gap: 16px; }
-  .evrow__cta { width: 100%; }
+  .evrow__inner { justify-content: flex-start; }
+  /* full-width stacked buttons: the price column is align-items:flex-start,
+     so the actions row has to claim the width itself */
+  .evrow__actions { flex-direction: column; align-items: stretch; width: 100%; }
+  .evrow__cta, .evrow__vr { width: 100%; }
+  /* pricing: the two card buttons stack on narrow cards */
+  .price-card__actions { flex-direction: column; }
+  .price-card__vr { width: 100%; }
 
   /* location: description card drops below the map instead of overlaying it */
   .amenities__map-inner { height: auto; display: flex; flex-direction: column; }
@@ -2178,24 +2271,27 @@ body.welcome-open { overflow: hidden; }
    Matters most on touch, where there is no :hover to fall back on. The
    transform leg is quick (.14s) so the press reads instantly; the colour
    legs keep their .28s. */
-.btn, .price-card__cta, .contact__submit, .welcome__cta, .cookie-banner__btn,
-.evrow__cta, .faq-map-btn, .e404__cta, .tour__btn, .vr-btn,
-.offer__ctrl, .events__ctrl, .about__ctrl, .pricing__ctrl,
+.btn, .price-card__cta, .price-card__vr, .contact__submit, .welcome__cta, .cookie-banner__btn,
+.evrow__cta, .evrow__vr, .offer-link, .nav-panel__client, .faq-map-btn, .e404__cta, .tour__btn, .vr-btn,
+.offer__ctrl, .about__ctrl, .pricing__ctrl,
 .lang-btn, .hall-btn, .pricing__tab, .nav-panel__link,
 .datepicker__nav, .datepicker__day, .datepicker__trigger, .welcome__x, .nav-panel__x {
-  transition-property: transform, background-color, border-color, color, opacity, gap;
+  transition-property: scale, background-color, border-color, color, opacity, gap;
   transition-duration: .14s, .28s, .28s, .28s, .28s, .28s;
   transition-timing-function: ease;
 }
-.btn:active, .price-card__cta:active, .contact__submit:active, .welcome__cta:active,
-.cookie-banner__btn:active, .evrow__cta:active, .faq-map-btn:active, .e404__cta:active,
+/* `scale` (not transform: scale) so it composes with positioning transforms —
+   the centred tour / VR buttons keep their translate(-50%,-50%) while pressed */
+.btn:active, .price-card__cta:active, .price-card__vr:active, .contact__submit:active, .welcome__cta:active,
+.cookie-banner__btn:active, .evrow__cta:active, .evrow__vr:active, .offer-link:active, .nav-panel__client:active,
+.faq-map-btn:active, .e404__cta:active,
 .tour__btn:active, .vr-btn:active, .lang-btn:active, .hall-btn:active,
-.pricing__tab:active, .datepicker__trigger:active { transform: scale(.97); }
-.offer__ctrl:active, .events__ctrl:active,
+.pricing__tab:active, .datepicker__trigger:active { scale: .97; }
+.offer__ctrl:active,
 .about__ctrl:active:not([aria-disabled="true"]),
 .pricing__ctrl:active:not([aria-disabled="true"]),
-.datepicker__nav:active, .welcome__x:active, .nav-panel__x:active { transform: scale(.9); }
-.datepicker__day:active:not(.is-disabled) { transform: scale(.88); }
+.datepicker__nav:active, .welcome__x:active, .nav-panel__x:active { scale: .9; }
+.datepicker__day:active:not(.is-disabled) { scale: .88; }
 .nav-panel__link:active { opacity: .5; }
 
 /* §15 — large display type reads too loose at 0 tracking; tighten a touch */
@@ -2210,7 +2306,7 @@ body.welcome-open { overflow: hidden; }
   .site-header__blur { display: none; }
   body.hdr-glass .site-header { background: rgba(34, 31, 29, .92); }
   .nav-panel { background: var(--stone-950); }
-  .hero__vr, .btn--icon, .offer__ctrl, .events__ctrl, .about__ctrl, .pricing__ctrl,
+  .hero__vr, .btn--icon, .offer__ctrl, .about__ctrl, .pricing__ctrl,
   .price-card__amen-item, .price-card__icon, .vr-btn, .tour__btn, .e404__cta {
     -webkit-backdrop-filter: none !important;
     backdrop-filter: none !important;
@@ -2228,7 +2324,8 @@ body.welcome-open { overflow: hidden; }
 
 /* §14 — no press-scale or materialize under reduced motion */
 @media (prefers-reduced-motion: reduce) {
-  *:active { transform: none !important; }
+  *:active { scale: none !important; }
+  .line-reveal::before { transform: none !important; transition: none !important; }
   .datepicker__pop { transition: none; opacity: 1; transform: none; }
   .price-card__tip { transition: none; }
 }
