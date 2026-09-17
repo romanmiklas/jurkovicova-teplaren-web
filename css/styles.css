@@ -1331,7 +1331,7 @@ body.menu-open .header-actions { visibility: hidden; }
   margin: 0;
   flex: 0 0 553px;
   width: 553px;
-  height: 432px;
+  height: 400px;
   border-radius: var(--radius-medium);
   overflow: hidden;
   background: var(--stone-100);
