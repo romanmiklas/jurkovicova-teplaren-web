@@ -841,10 +841,30 @@
 
     const eventsStage = eventsImg.parentElement;
     // the "What's in the price" block applies only to the two big halls
-    const inclusion = eventsAccordion.closest(".events").querySelector(".events__inclusion");
+    const eventsSection = eventsAccordion.closest(".events");
+    const inclusion = eventsSection.querySelector(".events__inclusion");
     const WITH_INCLUSION = { "event-hall": true, "main-event-hall": true };
+    // the 3-image gallery (Figma 622:6481 / 624:6596) exists only for the two halls too
+    const gallery = eventsSection.querySelector(".events__gallery");
+    const galleryImgs = gallery ? Array.prototype.slice.call(gallery.querySelectorAll("img[data-slot]")) : [];
+    const GALLERY = {
+      "event-hall": ["images/events/gallery/event-hall-1.jpg", "images/events/gallery/event-hall-2.jpg", "images/events/gallery/event-hall-3.jpg"],
+      "main-event-hall": ["images/events/gallery/main-event-hall-1.jpg", "images/events/gallery/main-event-hall-2.jpg", "images/events/gallery/main-event-hall-3.jpg"]
+    };
     function syncInclusion() {
-      if (inclusion) inclusion.hidden = !WITH_INCLUSION[rows[active].dataset.space];
+      const space = rows[active].dataset.space;
+      if (inclusion) inclusion.hidden = !WITH_INCLUSION[space];
+      if (!gallery) return;
+      const set = GALLERY[space];
+      if (!set) { gallery.hidden = true; return; }
+      const wasHidden = gallery.hidden;
+      gallery.hidden = false;
+      galleryImgs.forEach(function (img) {
+        const src = set[Number(img.dataset.slot) - 1];
+        if (!src || img.getAttribute("src") === src) return;
+        // hidden → shown: plain swap; hall → hall: same wipe as the main image
+        if (wasHidden) img.src = src; else wipeSwap(img.parentElement, img, src, "up");
+      });
     }
 
     function setActive(i, dir) {
