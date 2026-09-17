@@ -120,10 +120,11 @@ html.lenis, html.lenis body { height: auto; }
   .reveal { opacity: 1; transform: none; transition: none; }
 }
 /* accordion divider lines draw in left→right (bydiorama-style). JS adds
-   .line-reveal (line parked off to the left, no transition so nothing slides
-   out) and then .line-in on scroll-in, which lets the row's own transform
-   transition run it in; --ld staggers rows within a list. */
-.line-reveal:not(.line-in)::before { transform: translateX(-101%); transition: none; }
+   .line-reveal (line scaled to zero from its left edge, no transition so
+   nothing visibly collapses) and then .line-in on scroll-in, which lets the
+   row's own transform transition grow it back; --ld staggers rows in a list. */
+.offer-item::before, .evrow::before, .faq-item::before { transform-origin: left; }
+.line-reveal:not(.line-in)::before { transform: scaleX(0); transition: none; }
 button { font-family: inherit; cursor: pointer; border: none; background: none; }
 ul { list-style: none; margin: 0; padding: 0; }
 
@@ -652,7 +653,7 @@ body.menu-open .header-actions { visibility: hidden; }
 /* ====================================================================== */
 /*  03 — OFFER (accordion + gallery)                                       */
 /* ====================================================================== */
-.offer { background: var(--stone-900); padding: 40px 0; }
+.offer { background: var(--stone-900); padding: 80px 0; }
 .offer__inner {
   display: flex;
   justify-content: space-between;
@@ -673,7 +674,7 @@ body.menu-open .header-actions { visibility: hidden; }
    (no max-height guess → no dead time, no lingering previous item); the top
    divider is a ::before line that draws in left→right on scroll */
 .offer__accordion { flex: 1; display: flex; flex-direction: column; }
-.offer-item { position: relative; overflow: hidden; }
+.offer-item { position: relative; }
 .offer-item::before {
   content: "";
   position: absolute;
@@ -728,6 +729,7 @@ body.menu-open .header-actions { visibility: hidden; }
 }
 .offer-item.is-active .offer-item__body { height: auto; opacity: 1; flex: 1; }
 .offer-item.is-animating .offer-item__body { flex: none; }
+.offer-item.is-animating .offer-item__inner { flex: none; }
 /* padding lives INSIDE the animated box so a 0-height body is truly 0 */
 .offer-item__inner {
   flex: 1;
@@ -844,7 +846,7 @@ body.menu-open .header-actions { visibility: hidden; }
   display: flex;
   flex-direction: column;
   gap: 48px;
-  padding: 40px var(--pad-x);
+  padding: 80px var(--pad-x);
 }
 .pricing__head { display: flex; flex-direction: column; gap: 80px; }
 .pricing__title {
@@ -1038,9 +1040,10 @@ body.menu-open .header-actions { visibility: hidden; }
 
 /* "I am interested" + "Explore in VR" side by side (614:4073) */
 .price-card__actions { display: flex; gap: 8px; }
-.price-card__actions .price-card__cta { flex: 1 1 0; min-width: 0; padding: 10px 16px; }
+.price-card__actions .price-card__cta { flex: 1 1 0; min-width: 0; padding: 10px 20px; }  /* same padding as the VR button → equal widths */
 .price-card__vr {
-  flex: 0 0 auto;
+  flex: 1 1 0;
+  min-width: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1127,7 +1130,7 @@ body.menu-open .header-actions { visibility: hidden; }
   display: flex;
   flex-direction: column;
   gap: 48px;
-  padding: 40px var(--pad-x);
+  padding: 80px var(--pad-x);
 }
 .events__intro { display: flex; flex-direction: column; gap: 32px; color: var(--stone-900); }
 .events__title { margin: 0; font-size: 40px; line-height: 1.2; font-weight: 400; }
@@ -1154,7 +1157,7 @@ body.menu-open .header-actions { visibility: hidden; }
 /* accordion of space types — same true-height mechanics + line draw as Offer;
    the image on the left simply follows the open row (no paging arrows) */
 .events__list { flex: 0 0 552px; display: flex; flex-direction: column; }
-.evrow { position: relative; overflow: hidden; }
+.evrow { position: relative; }
 .evrow::before {
   content: "";
   position: absolute;
@@ -1196,6 +1199,7 @@ body.menu-open .header-actions { visibility: hidden; }
 }
 .evrow.is-active .evrow__body { height: auto; opacity: 1; flex: 1; }
 .evrow.is-animating .evrow__body { flex: none; }
+.evrow.is-animating .evrow__inner { flex: none; }
 .evrow__inner {
   flex: 1;
   display: flex;
@@ -1204,7 +1208,7 @@ body.menu-open .header-actions { visibility: hidden; }
   gap: 24px;
   padding: 8px 0 24px;   /* 24px head padding + 8 = the design's 32px title→text gap */
 }
-.evrow__desc { margin: 0; font-size: 16px; line-height: 1.5; color: var(--stone-900); }
+.evrow__desc { margin: 0; font-size: 14px; line-height: 1.4; color: var(--stone-900); }
 /* price on its own line, the two buttons underneath (Figma 614:2754) */
 .evrow__price {
   display: flex;
@@ -1244,9 +1248,9 @@ body.menu-open .header-actions { visibility: hidden; }
   border-radius: var(--radius-tiny);
   background: var(--stone-100);
   color: var(--terracota-500);
-  font-size: 16px;
-  letter-spacing: 0.48px;
-  line-height: 1;
+  font-size: 14px;
+  letter-spacing: 0.42px;
+  line-height: 1.4;
   white-space: nowrap;
 }
 .evrow__vr:hover { background: var(--terracota-500); color: var(--stone-100); }
@@ -1286,7 +1290,7 @@ body.menu-open .header-actions { visibility: hidden; }
   display: flex;
   flex-direction: column;
   gap: 120px;
-  padding: 40px var(--pad-x);
+  padding: 80px var(--pad-x);
 }
 .about__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 40px; }
 .about__text {
@@ -1498,18 +1502,19 @@ body.menu-open .header-actions { visibility: hidden; }
   font-size: 16px;
   line-height: 1.5;
 }
+.amenities__chips { display: flex; flex-wrap: wrap; gap: 4px; width: 100%; }
 .amenities__row {
-  width: 100%;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 16px 0;
-  border-top: 1px solid var(--stone-900);
+  gap: 16px;
+  height: 44px;
+  padding: 8px 16px;
+  border: 1px solid var(--stone-900);
+  border-radius: var(--radius-tiny);
   font-size: 16px;
   line-height: 1.5;
   white-space: nowrap;
 }
-.amenities__row--last { padding-bottom: 0; }
 .amenities__row > span:last-child { text-decoration: underline; text-underline-position: from-font; }
 .amenities__row[data-hover] { cursor: pointer; transition: opacity .28s ease; }
 .amenities__row[data-hover]:hover { opacity: 0.7; }
@@ -1559,7 +1564,7 @@ body.menu-open .header-actions { visibility: hidden; }
 .faq__spacer { flex: 0 0 92px; }
 .faq__list { flex: 0 0 552px; display: flex; flex-direction: column; }
 
-.faq-item { position: relative; overflow: hidden; color: var(--stone-100); }
+.faq-item { position: relative; color: var(--stone-100); }
 .faq-item::before {
   content: "";
   position: absolute;
@@ -1832,6 +1837,9 @@ body.menu-open .header-actions { visibility: hidden; }
 
 /* ---- Tablet (≤1199px): stack the two-column layouts ------------------- */
 @media (max-width: 1199px) {
+  /* section rhythm: the 80px desktop padding (Figma 614:2617) stays 40px here */
+  .offer { padding: 40px 0; }
+  .pricing, .events { padding: 40px var(--pad-x); }
   .hero__top { flex-direction: column; gap: 32px; }
   .hero__spacer { display: none; }
   .hero__headline { flex: 0 0 auto; width: 100%; max-width: 640px; }

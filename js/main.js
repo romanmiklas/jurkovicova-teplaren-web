@@ -211,75 +211,74 @@
   }
 
   /* ---- Shared: smooth accordion (true-height, bydiorama-style) ----------- *
-   * Animates the body's REAL measured height instead of a max-height guess,
-   * so opening and closing run the exact distance with no dead time and the
-   * closing item never lingers behind the opening one. While tweening, the
-   * item drops its flex-fill (.is-animating) so the rows slide smoothly;
-   * afterwards it returns to the fluid layout (height:auto / flex:1).
-   * Interruptible: re-toggling mid-tween continues from the on-screen height. */
+   * accSwitch(items, openItem, bodySel, activeClass) opens `openItem` (none
+   * when null) and closes the rest. Every body that changes is tweened from
+   * its current on-screen height to its height in the FINAL layout:
+   *  - the end-state classes are applied first and measured in one layout
+   *    pass, so a flex-fill row lands exactly where it will stay (no snap);
+   *  - the inner content is frozen at its final size while the body clips
+   *    it, so nothing reflows or slides during the tween (a pure reveal);
+   *  - the start value is the on-screen height, so re-toggling mid-tween
+   *    simply continues from where it is.                                    */
   const ACC_DUR = 850;
   const ACC_EASE = "cubic-bezier(.4, 0, .2, 1)";
-  function accIsOpen(item, activeClass) {
-    return item._accOpen != null ? item._accOpen : item.classList.contains(activeClass);
-  }
-  function accSetOpen(item, body, open, activeClass) {
-    if (!item || !body) return;
-    item._accOpen = open;
-    if (reduceMotion) {
-      item.classList.toggle(activeClass, open);
-      item.classList.remove("is-animating");
-      return;
-    }
-    const isOpen = item.classList.contains(activeClass);
-    const animating = item.classList.contains("is-animating");
-    if (open === isOpen && !animating) return;
-    if (body._accEnd) {
-      body.removeEventListener("transitionend", body._accEnd);
-      clearTimeout(body._accTimer);
-      body._accEnd = null;
-    }
-    const cur = body.offsetHeight;                          // on-screen height (0 when closed)
-    const curOp = getComputedStyle(body).opacity;
-    if (open) {
-      item.classList.remove("is-animating");
-      item.classList.add(activeClass);                      // final (fluid) layout…
-      body.style.transition = "none";
-      body.style.height = "auto";
-      const target = body.offsetHeight;                     // …gives the true fill height
-      item.classList.add("is-animating");                   // freeze the row while tweening
-      body.style.height = cur + "px";
-      body.style.opacity = curOp;
-      void body.offsetHeight;
-      body.style.transition = "height " + ACC_DUR + "ms " + ACC_EASE +
-        ", opacity " + Math.round(ACC_DUR * 0.6) + "ms ease " + Math.round(ACC_DUR * 0.15) + "ms";
-      body.style.height = target + "px";
-      body.style.opacity = "1";
-    } else {
-      item.classList.add("is-animating");
-      body.style.transition = "none";
-      body.style.height = cur + "px";
-      body.style.opacity = curOp;
-      void body.offsetHeight;
-      body.style.transition = "height " + ACC_DUR + "ms " + ACC_EASE +
-        ", opacity " + Math.round(ACC_DUR * 0.45) + "ms ease";
-      body.style.height = "0px";
-      body.style.opacity = "0";
-    }
-    const end = function (e) {
-      if (e && e.propertyName && e.propertyName !== "height") return;
-      if (body._accEnd !== end) return;
-      body.removeEventListener("transitionend", end);
-      clearTimeout(body._accTimer);
-      body._accEnd = null;
-      if (!open) item.classList.remove(activeClass);
-      item.classList.remove("is-animating");
-      body.style.height = "";
-      body.style.transition = "";
-      body.style.opacity = "";
-    };
-    body._accEnd = end;
-    body.addEventListener("transitionend", end);
-    body._accTimer = setTimeout(end, ACC_DUR + 120);       // safety net (throttled tabs)
+  function accSwitch(items, openItem, bodySel, activeClass) {
+    const rows = items.map(function (it) {
+      const body = it.querySelector(bodySel);
+      return body ? { it: it, body: body, inner: body.firstElementChild,
+                      cur: body.offsetHeight, op: getComputedStyle(body).opacity } : null;
+    }).filter(Boolean);
+
+    // 1) every row → its final state, no inline overrides (kill in-flight tweens)
+    rows.forEach(function (r) {
+      if (r.body._accEnd) { r.body.removeEventListener("transitionend", r.body._accEnd); clearTimeout(r.body._accTimer); r.body._accEnd = null; }
+      r.it.classList.remove("is-animating");
+      r.it.classList.toggle(activeClass, r.it === openItem);
+      r.body.style.transition = "none";
+      r.body.style.height = "";
+      r.body.style.opacity = "";
+      if (r.inner) r.inner.style.height = "";
+    });
+    if (reduceMotion) { rows.forEach(function (r) { r.body.style.transition = ""; }); return; }
+
+    // 2) measure the final heights (one layout pass); only rows that move animate
+    rows.forEach(function (r) { r.target = r.body.offsetHeight; });
+    const moving = rows.filter(function (r) { return Math.abs(r.target - r.cur) > 0.5; });
+    rows.forEach(function (r) { if (moving.indexOf(r) < 0) r.body.style.transition = ""; });
+    if (!moving.length) return;
+
+    // 3) freeze: body back at its on-screen height, content held at its larger
+    //    (final when opening / current when closing) size so it never reflows
+    moving.forEach(function (r) {
+      r.it.classList.add("is-animating");
+      if (r.inner) r.inner.style.height = Math.max(r.target, r.cur) + "px";
+      r.body.style.height = r.cur + "px";
+      r.body.style.opacity = r.op;
+    });
+    void document.body.offsetHeight;
+
+    // 4) tween to the final heights
+    moving.forEach(function (r) {
+      const opening = r.target > r.cur;
+      r.body.style.transition = "height " + ACC_DUR + "ms " + ACC_EASE + ", opacity " +
+        (opening ? Math.round(ACC_DUR * 0.6) + "ms ease " + Math.round(ACC_DUR * 0.15) + "ms"
+                 : Math.round(ACC_DUR * 0.45) + "ms ease");
+      r.body.style.height = r.target + "px";
+      r.body.style.opacity = opening ? "1" : "0";
+      const end = function (e) {
+        if (e && e.propertyName && e.propertyName !== "height") return;
+        if (r.body._accEnd !== end) return;
+        r.body.removeEventListener("transitionend", end);
+        clearTimeout(r.body._accTimer);
+        r.body._accEnd = null;
+        r.it.classList.remove("is-animating");
+        r.body.style.height = ""; r.body.style.transition = ""; r.body.style.opacity = "";
+        if (r.inner) r.inner.style.height = "";
+      };
+      r.body._accEnd = end;
+      r.body.addEventListener("transitionend", end);
+      r.body._accTimer = setTimeout(end, ACC_DUR + 120);   // safety net (throttled tabs)
+    });
   }
 
   /* ---- Shared: smooth anchor scroll (slow, eased) ---------------------- */
@@ -633,10 +632,10 @@
     function selectCat(newCat) {
       cat = newCat;
       idx = 0;
+      const target = items.filter(function (it) { return it.dataset.cat === cat; })[0];
+      accSwitch(items, target, ".offer-item__body", "is-active");
       items.forEach(function (it) {
-        const on = it.dataset.cat === cat;
-        accSetOpen(it, it.querySelector(".offer-item__body"), on, "is-active");
-        it.querySelector(".offer-item__head").setAttribute("aria-expanded", String(on));
+        it.querySelector(".offer-item__head").setAttribute("aria-expanded", String(it.dataset.cat === cat));
       });
       showImage("up");
     }
@@ -851,10 +850,9 @@
     function setActive(i, dir) {
       if (i === active) return;
       active = (i + rows.length) % rows.length;
+      accSwitch(rows, rows[active], ".evrow__body", "is-active");
       rows.forEach(function (r, idx) {
-        const on = idx === active;
-        accSetOpen(r, r.querySelector(".evrow__body"), on, "is-active");
-        r.querySelector(".evrow__head").setAttribute("aria-expanded", String(on));
+        r.querySelector(".evrow__head").setAttribute("aria-expanded", String(idx === active));
       });
       // the gallery follows the accordion (the arrows that used to page it are gone)
       wipeSwap(eventsStage, eventsImg, IMAGES[rows[active].dataset.space], dir || "up");
@@ -1005,14 +1003,9 @@
     }
     items.forEach(function (item) {
       item.querySelector(".faq-item__head").addEventListener("click", function () {
-        const willOpen = !accIsOpen(item, "is-open");
-        items.forEach(function (i) {
-          if (i !== item && accIsOpen(i, "is-open")) accSetOpen(i, i.querySelector(".faq-item__body"), false, "is-open");
-        });
-        accSetOpen(item, item.querySelector(".faq-item__body"), willOpen, "is-open");
-        items.forEach(function (i) {
-          i.querySelector(".faq-item__head").setAttribute("aria-expanded", String(accIsOpen(i, "is-open")));
-        });
+        const willOpen = !item.classList.contains("is-open");
+        accSwitch(items, willOpen ? item : null, ".faq-item__body", "is-open");
+        syncFaqAria();
       });
     });
     syncFaqAria();
