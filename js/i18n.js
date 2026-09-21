@@ -176,7 +176,8 @@
   ];
 
   /* cowork cards: cover photos + the Matterport tour behind "Explore in VR" */
-  var VR_TOUR = "https://my.matterport.com/show/?m=DKPrZYytU46&ts=0&play=1";
+  var VR_FIX = "https://my.matterport.com/show/?m=ro2yLGBB8oc&play=1&ss=120&sr=-2.86,-.02";   /* Fix Desk + Fix Desk Premium */
+  var VR_HOT = "https://my.matterport.com/show/?m=ro2yLGBB8oc&play=1&ss=132&sr=-1.34,-1.18"; /* Hot Desk */
   var IMG_FIX = "images/pricing/cowork-fixdesk.jpg";
   var IMG_HOT = "images/pricing/cowork-hotdesk.jpg";
 
@@ -187,16 +188,16 @@
       ctaVR: "Explore in VR",
       cowork: [
         { name: "Fix Desk", sub: "A space of your own with a dedicated desk.", icon: "desk",
-          image: IMG_FIX, vr: VR_TOUR,
+          image: IMG_FIX, vr: VR_FIX,
           amen: [{ i: "chair", t: "High-quality VITRA chair" }, { i: "table", t: "Table" }, { i: "cabinet", t: "File cabinet" }],
           from: "From", amount: "299€", unit: "/ month, excl. VAT", features: COWORK_FULL_EN },
         { name: "Fix Desk", tag: "Premium", sub: "A space of your own with a dedicated desk in a shared lockable office.", icon: "desk",
-          image: IMG_FIX, vr: VR_TOUR,
+          image: IMG_FIX, vr: VR_FIX,
           amen: [{ i: "chair", t: "High-quality VITRA chair" }, { i: "table", t: "Table" }, { i: "cabinet", t: "File cabinet" }, { i: "office", t: "Lockable office" }],
           from: "From", amount: "319€", unit: "/ month, excl. VAT",
           features: COWORK_FULL_EN.concat(["Reception of mail and parcels"]) },
         { name: "Hot Desk", sub: "Feel free to drop in anywhere within communal areas.", icon: "laptop",
-          image: IMG_HOT, imgPos: "50% 58%", vr: VR_TOUR,
+          image: IMG_HOT, imgPos: "50% 58%", vr: VR_HOT,
           amen: [{ i: "laptop", t: "Table by your preferences in any of the community zones" }],
           from: "From", amount: "199€", unit: "/ month, excl. VAT", features: [
             "Access during opening hours", "Access to all common areas", "Internet connection",
@@ -228,16 +229,16 @@
       ctaVR: "Pozrieť vo VR",
       cowork: [
         { name: "Fix Desk", sub: "Vlastný priestor s vyhradeným pracovným stolom.", icon: "desk",
-          image: IMG_FIX, vr: VR_TOUR,
+          image: IMG_FIX, vr: VR_FIX,
           amen: [{ i: "chair", t: "Kvalitná stolička značky VITRA" }, { i: "table", t: "Stôl" }, { i: "cabinet", t: "Kartotéka" }],
           from: "Od", amount: "299€", unit: "/ mesiac, bez DPH", features: COWORK_FULL_SK },
         { name: "Fix Desk", tag: "Premium", sub: "Vlastný priestor s vyhradeným stolom v zdieľanej uzamykateľnej kancelárii.", icon: "desk",
-          image: IMG_FIX, vr: VR_TOUR,
+          image: IMG_FIX, vr: VR_FIX,
           amen: [{ i: "chair", t: "Kvalitná stolička značky VITRA" }, { i: "table", t: "Stôl" }, { i: "cabinet", t: "Kartotéka" }, { i: "office", t: "Uzamykateľná kancelária" }],
           from: "Od", amount: "319€", unit: "/ mesiac, bez DPH",
           features: COWORK_FULL_SK.concat(["Príjem pošty a balíkov"]) },
         { name: "Hot Desk", sub: "Sadnite si, kde je práve voľné — celé spoločné priestory sú vám k dispozícii.", icon: "laptop",
-          image: IMG_HOT, imgPos: "50% 58%", vr: VR_TOUR,
+          image: IMG_HOT, imgPos: "50% 58%", vr: VR_HOT,
           amen: [{ i: "laptop", t: "Stôl podľa vašich preferencií v ktorejkoľvek z komunitných zón" }],
           from: "Od", amount: "199€", unit: "/ mesiac, bez DPH", features: [
             "Prístup počas otváracích hodín", "Prístup do všetkých spoločných priestorov", "Internetové pripojenie",
