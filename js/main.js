@@ -430,6 +430,10 @@
       document.body.classList.toggle("menu-open", open);
       menuToggle.setAttribute("aria-expanded", String(open));
     }
+    // stagger index for the roll-down — CSS delays each item by --i × 50ms
+    navPanel.querySelectorAll(".nav-panel__link, .nav-panel__lang, .nav-panel__client").forEach(function (el, i) {
+      el.style.setProperty("--i", i);
+    });
     menuToggle.addEventListener("click", function (e) {
       e.stopPropagation();
       setMenu(!document.body.classList.contains("menu-open"));
