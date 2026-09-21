@@ -464,7 +464,6 @@ body.menu-open .header-actions { visibility: hidden; transition: visibility 0s; 
   font-weight: 400;
   color: var(--stone-100);
 }
-.hero__spacer { flex: 0 0 91px; }
 /* right column: subheading on top, VR bar below */
 .hero__top-right {
   width: 437px;
@@ -981,21 +980,6 @@ body.menu-open .header-actions { visibility: hidden; transition: visibility 0s; 
 /* office sub spans the full card width and reserves equal height so the
    images below line up across the three office cards */
 .price-card__sub--office { max-width: none; min-height: 80px; }
-.price-card__icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  flex: 0 0 40px;
-  border-radius: var(--radius-tiny);
-  background: var(--stone-100);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  color: var(--stone-900);
-}
-.price-card__icon svg,
-.price-card__icon img { width: 16px; height: 16px; display: block; }
 
 /* row of "what your desk includes" icons (above the price), each with a
    dark tooltip on hover — Figma 68:3260 */
@@ -1884,7 +1868,6 @@ body.menu-open .header-actions { visibility: hidden; transition: visibility 0s; 
   .offer { padding: 40px 0; }
   .pricing, .events { padding: 40px var(--pad-x); }
   .hero__top { flex-direction: column; gap: 32px; }
-  .hero__spacer { display: none; }
   .hero__headline { flex: 0 0 auto; width: 100%; max-width: 640px; }
   .hero__title { font-size: 36px; }
   .hero__top-right { width: 100%; align-items: flex-start; }
@@ -2365,7 +2348,7 @@ body.welcome-open { overflow: hidden; }
   body.hdr-glass .site-header { background: rgba(34, 31, 29, .92); }
   .nav-panel { background: var(--stone-950); }
   .hero__vr, .btn--icon, .offer__ctrl, .about__ctrl, .pricing__ctrl,
-  .price-card__amen-item, .price-card__icon, .vr-btn, .tour__btn, .e404__cta {
+  .price-card__amen-item, .vr-btn, .tour__btn, .e404__cta {
     -webkit-backdrop-filter: none !important;
     backdrop-filter: none !important;
   }

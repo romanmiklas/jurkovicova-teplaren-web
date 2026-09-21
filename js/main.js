@@ -458,7 +458,7 @@
       }
     });
 
-    // language toggle (visual only)
+    // language switch: active-state styling only — the actual SK/EN swap lives in js/i18n.js
     navPanel.querySelectorAll(".lang-btn").forEach(function (b) {
       b.addEventListener("click", function () {
         navPanel.querySelectorAll(".lang-btn").forEach(function (x) { x.classList.remove("is-active"); });
@@ -615,7 +615,7 @@
   const offerAccordion = document.getElementById("offerAccordion");
   const offerImg = document.getElementById("offerImg");
   if (offerAccordion && offerImg) {
-    // 3 dedicated images per category (placeholders — client will replace)
+    // 3 dedicated images per category
     const galleries = {
       cowork:  ["images/offer/cowork-1.jpg",  "images/offer/cowork-2.jpg",  "images/offer/cowork-3.jpg"],
       offices: ["images/offer/offices-1.jpg", "images/offer/offices-2.jpg", "images/offer/offices-3.jpg"],
@@ -831,7 +831,7 @@
   const eventsAccordion = document.getElementById("eventsAccordion");
   const eventsImg = document.getElementById("eventsImg");
   if (eventsAccordion && eventsImg) {
-    // one dedicated image per room type (placeholders — client will replace)
+    // one dedicated image per room type
     const IMAGES = {
       "event-hall": "images/events/event-hall.jpg",
       "main-event-hall": "images/events/main-event-hall.jpg",
