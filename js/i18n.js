@@ -140,7 +140,7 @@
     { sel: ".contact__address", mode: "html",
       sk: "Jurkovičova Tepláreň<br>Bottova 1/1<br>811 09 Bratislava<br>Slovensko" },
     { sel: ".contact__person-name", mode: "html", list: true,
-      sk: ["Veronika Žiaranová<br>Manažérka coworku", "Nina Gašparík<br>Koordinátorka eventov"] },
+      sk: ["Veronika Žiaranová<br>Manažérka coworku"] },
     { sel: ".contact__inputs .field__label", mode: "text", list: true,
       sk: ["Meno", "Priezvisko", "E-mail", "Telefónne číslo", "Odkiaľ ste sa o nás dozvedeli?", "O čo máte záujem?", "Preferovaný dátum", "Vaša správa"] },
     { sel: ".hall-btn", mode: "text", list: true, sk: ["Eventová hala", "Hlavná eventová hala"] },
