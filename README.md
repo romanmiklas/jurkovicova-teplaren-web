@@ -113,5 +113,4 @@ Two things have gone wrong before:
 
 ## Open items
 
-- Networking lobby has no price yet (the row shows only the VR button) — waiting for the client.
 - `/sk` and `/en` language URLs were discussed but not built; the language is client-side only.
