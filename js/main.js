@@ -831,11 +831,11 @@
   const eventsAccordion = document.getElementById("eventsAccordion");
   const eventsImg = document.getElementById("eventsImg");
   if (eventsAccordion && eventsImg) {
-    // one dedicated image per room type
+    // one dedicated image per room type (?v= on replaced photos skips stale browser caches)
     const IMAGES = {
-      "event-hall": "images/events/event-hall.jpg",
-      "main-event-hall": "images/events/main-event-hall.jpg",
-      "networking-lobby": "images/events/networking-lobby.jpg",
+      "event-hall": "images/events/event-hall.jpg?v=20261117",
+      "main-event-hall": "images/events/main-event-hall.jpg?v=20261117",
+      "cafe-gallery": "images/events/cafe-gallery.jpg",
       "workshop-room": "images/events/workshop-room.jpg",
       "meeting-room": "images/events/meeting-room.jpg"
     };

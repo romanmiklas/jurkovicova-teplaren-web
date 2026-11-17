@@ -68,11 +68,11 @@
     { sel: ".events__title", mode: "text", sk: "Eventové priestory a zasadačky" },
     { sel: ".events__lead", mode: "text", sk: "Jedinečné priestory vhodné na súkromné aj verejné podujatia." },
     { sel: ".evrow__name", mode: "text", list: true,
-      sk: ["Eventová sála", "Hlavná eventová sála", "Networking lobby", "Workshopová miestnosť", "Zasadačky"] },
+      sk: ["Eventová sála", "Hlavná eventová sála", "Kaviareň a galéria na prízemí", "Workshopová miestnosť", "Zasadačky"] },
     { sel: ".evrow__desc", mode: "html", list: true, sk: [
       "Univerzálna sála pre semináre a stredne veľké podujatia, s kapacitou 100 osôb. V cene: nábytok, projekcia, ozvučenie, 2× ručný mikrofón a internet.",
       "Výnimočný priestor pre väčšie spoločenské, kultúrne aj biznis podujatia. Je ideálna na networkingové eventy, vernisáže, recepcie či vzdelávacie formáty, ktoré si vyžadujú atmosféru aj profesionálne zázemie.<br>• Priestor je dostupný pre členov coworkingu aj verejnosť.<br>• Kapacita do 200 osôb.",
-      "Otvorená, presvetlená lobby v srdci budovy — prirodzené miesto na recepcie, coffee breaky a neformálny networking pred podujatím či po ňom. Variabilné sedenie, komunitný bar a priamy prístup do eventových sál.",
+      "Kaviareň a galéria na prízemí spájajú dobrú kávu, umenie a jedinečnú atmosféru národnej kultúrnej pamiatky. Príjemné prostredie pre recepcie, vernisáže, uvedenia produktov či neformálny networking — samostatne, alebo ako uvítací priestor a miesto na posedenie po podujatí v sálach.",
       "Workshopová miestnosť na druhom podlaží s variabilným usporiadaním a priamym prístupom ku komunitnej zóne coworkingu. Ideálne miesto na školenia, workshopy, či prezentácie.",
       "Komorné, dobre vybavené miestnosti pre porady vedenia, pohovory a menšie stretnutia s klientmi."
     ] },
