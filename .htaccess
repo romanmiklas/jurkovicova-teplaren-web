@@ -59,6 +59,18 @@ Options -Indexes
 # ---- Don't expose the .git folder --------------------------------------
 RedirectMatch 404 /\.git
 
+# ---- Contact-form storage (token key, used tokens, rate limits) --------
+# contact.php creates .contact-data/ itself (with its own deny-all .htaccess)
+RedirectMatch 404 /\.contact-data
+
+# ---- HTML is always revalidated, so a new upload reaches visitors at once
+# (CSS/JS are versioned with ?v=… in index.html — bump it when they change)
+<IfModule mod_headers.c>
+  <FilesMatch "\.html$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+</IfModule>
+
 # ---- Disable risky HTTP methods ----------------------------------------
 <LimitExcept GET POST HEAD>
   Require all denied

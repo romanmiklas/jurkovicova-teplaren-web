@@ -26,7 +26,7 @@ index.html        the whole page — one <section> per design block, numbered 01
 404.html          standalone error page (own inline SK/EN script, does not load main.js)
 privacy.html      privacy policy
 cookies.html      cookie policy
-contact.php       contact form handler — validates and e-mails the enquiry via PHP mail()
+contact.php       contact form handler — anti-spam checks, validation, e-mails the enquiry via PHP mail()
 .htaccess         HTTPS + www redirects, HSTS, CSP, 404 page, blocks dotfiles / dev files
 robots.txt, sitemap.xml
 
@@ -85,6 +85,29 @@ must also be allowed in the CSP in `.htaccess`, otherwise the browser blocks it 
 **Contact form.** `contact.php` mails to `info@jurkovicovateplaren.sk` from
 `noreply@jurkovicovateplaren.sk` (the sender must stay on this domain for SPF/DKIM).
 
+**Anti-spam** (all invisible to visitors, no third-party service, no cookies; settings in `$CFG` at
+the top of `contact.php`):
+
+1. The POST must come from this site (Origin / Referer).
+2. One-time signed token: `js/main.js` fetches `contact.php?token=1` when the visitor starts
+   filling the form in. A POST without a valid, unused token is refused.
+3. Rate limit per visitor IP: 5 per 10 min, 20 per day. The IP is stored only as a salted hash.
+4. Honeypot field `website`, pushed off-screen by `.contact__hp`. Bots that fill it in get a fake
+   "thank you" and nothing is sent.
+5. Minimum fill time: 3 s between the token and the POST.
+6. Server-side validation. Name, e-mail and consent are required, the e-mail domain must exist in
+   DNS, and the phone and select values are checked.
+7. Content score: gibberish names, links, HTML, spam phrases, non-Latin script, throwaway e-mail,
+   and no real key or pointer input (`_h=0`). From score 3 the e-mail arrives with `[SPAM?]` at the
+   start of the subject and an `X-JT-Spam-Score` header, so a mailbox filter can file it. From
+   score 6 the enquiry is discarded. Set `spam_to` to receive the discarded ones for checking.
+
+Only clean enquiries answer `track: true`. `js/main.js` pushes the GTM `form_submission` event only
+for those, so spam never counts as a conversion. Every discarded enquiry is logged in the PHP error
+log, with the e-mail masked. `contact.php` creates `.contact-data/` itself (token key, used tokens,
+rate counters). It is denied to the web, and deleting it is safe. `grace_until` lets pages cached
+from before the anti-spam update (no token) through with `[SPAM?]`. After that date they are refused.
+
 **Design tokens.** Colours, radii, blur and spacing live in `:root` at the top of
 `css/styles.css`. Known difference: Figma's `stone-100` is `#f9f5f1`, the site token is
 `#fff6f2`; only the Tour section uses the Figma value so far.
@@ -94,8 +117,12 @@ must also be allowed in the CSP in `.htaccess`, otherwise the browser blocks it 
 There is no CI. Production is updated by uploading the site files to the Websupport web root.
 
 ```bash
-zip -r -X ../JurkovicovaTeplaren_Website.zip . -x "*.DS_Store" ".git/*" ".gitignore" ".claude/*" "_resources/*" "_figma_ref/*" "README.md"
+zip -r -X ../JurkovicovaTeplaren_Website.zip . -x "*.DS_Store" ".git/*" ".gitignore" ".claude/*" "_resources/*" "_figma_ref/*" ".contact-data/*" "README.md"
 ```
+
+`index.html` loads `css/styles.css` and `js/main.js` with `?v=YYYYMMDD`. Bump it when you change
+them, so returning visitors don't keep an old cached copy. HTML itself is sent with
+`Cache-Control: no-cache`.
 
 Two things have gone wrong before:
 
