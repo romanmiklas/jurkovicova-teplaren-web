@@ -109,8 +109,8 @@ rate counters). It is denied to the web, and deleting it is safe. `grace_until` 
 from before the anti-spam update (no token) through with `[SPAM?]`. After that date they are refused.
 
 **Design tokens.** Colours, radii, blur and spacing live in `:root` at the top of
-`css/styles.css`. Known difference: Figma's `stone-100` is `#f9f5f1`, the site token is
-`#fff6f2`; only the Tour section uses the Figma value so far.
+`css/styles.css`. `--stone-100` is `#f9f5f1`, the same as Figma's `stone-100`.
+The light SVG icons and the ALTO logo use it too.
 
 ## Deploy
 
