@@ -1658,6 +1658,8 @@ body.menu-open .header-actions { visibility: hidden; transition: visibility 0s; 
 .contact__spacer { flex: 0 0 92px; }
 
 .contact__form { flex: 0 0 552px; display: flex; flex-direction: column; gap: 32px; }
+/* anti-spam honeypot — pushed off-screen, NOT display:none (bots skip those) */
+.contact__hp { position: absolute; left: -10000px; top: auto; width: 1px; height: 1px; overflow: hidden; }
 .contact__inputs { display: flex; flex-direction: column; gap: 16px; }
 .field-row { display: flex; gap: 16px; }
 .field { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 8px; position: relative; }

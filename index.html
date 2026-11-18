@@ -64,7 +64,7 @@
   }
   </script>
 
-  <link rel="stylesheet" href="css/styles.css?v=20261118" />
+  <link rel="stylesheet" href="css/styles.css?v=20261118b" />
   <!-- set before first paint so the hero can reveal top-to-bottom without a flash -->
   <script>document.documentElement.classList.add("js-preload");</script>
 </head>
@@ -623,14 +623,14 @@
       <div class="contact__spacer"></div>
 
       <form class="contact__form" id="contactForm" name="contact" action="contact.php" method="POST">
-        <p hidden aria-hidden="true"><label>Leave this empty: <input name="bot-field" tabindex="-1" autocomplete="off" /></label></p>
+        <div class="contact__hp" aria-hidden="true"><label>Leave this field empty <input type="text" name="website" value="" tabindex="-1" autocomplete="off" /></label></div>
         <div class="contact__inputs">
           <div class="field-row">
-            <label class="field"><span class="field__label">Name</span><input class="field__input" type="text" name="name" placeholder="Enter name" autocomplete="given-name" required /></label>
-            <label class="field"><span class="field__label">Surname</span><input class="field__input" type="text" name="surname" placeholder="Enter surname" autocomplete="family-name" /></label>
+            <label class="field"><span class="field__label">Name</span><input class="field__input" type="text" name="name" placeholder="Enter name" autocomplete="given-name" maxlength="80" required /></label>
+            <label class="field"><span class="field__label">Surname</span><input class="field__input" type="text" name="surname" placeholder="Enter surname" autocomplete="family-name" maxlength="80" /></label>
           </div>
-          <label class="field"><span class="field__label">E-mail</span><input class="field__input" type="email" name="email" placeholder="Enter e-mail" autocomplete="email" required /></label>
-          <label class="field"><span class="field__label">Phone number</span><input class="field__input" type="tel" name="phone" placeholder="+421 0" autocomplete="tel" /></label>
+          <label class="field"><span class="field__label">E-mail</span><input class="field__input" type="email" name="email" placeholder="Enter e-mail" autocomplete="email" maxlength="254" required /></label>
+          <label class="field"><span class="field__label">Phone number</span><input class="field__input" type="tel" name="phone" placeholder="+421 0" autocomplete="tel" maxlength="25" pattern="\+?[0-9 \(\)\-\/.]{6,25}" /></label>
           <label class="field field--select">
             <span class="field__label">Where did you hear about us?</span>
             <select class="field__input" name="source">
@@ -666,7 +666,7 @@
             <button type="button" class="hall-btn" data-hall="main-event-hall">Main event hall</button>
             <input type="hidden" name="hall" value="event-hall" />
           </div>
-          <label class="field"><span class="field__label">Your message</span><textarea class="field__input field__input--area" name="message" placeholder="Enter message" rows="4"></textarea></label>
+          <label class="field"><span class="field__label">Your message</span><textarea class="field__input field__input--area" name="message" placeholder="Enter message" rows="4" maxlength="5000"></textarea></label>
         </div>
 
         <label class="contact__consent">
@@ -693,7 +693,7 @@
 
   <script src="js/i18n.js?v=20261117"></script>
   <script src="js/lenis.min.js"></script>
-  <script src="js/main.js?v=20261117"></script>
+  <script src="js/main.js?v=20261117b"></script>
   <script src="js/consent.js"></script>
 </body>
 </html>

@@ -1035,9 +1035,37 @@
     syncFaqAria();
   }
 
-  /* ---- Contact form (no backend — graceful confirmation) --------------- */
+  /* ---- Contact form → contact.php (AJAX) ---------------------------------
+     Anti-spam handshake (the checks themselves live in contact.php):
+     - as soon as the visitor starts filling the form in, fetch a signed
+       one-time token; the server refuses POSTs without it and POSTs sent
+       sooner than 3 s after it (bots fill the form instantly)
+     - count real (isTrusted) key / pointer / input events — a script that
+       injects the values and submits produces none
+     - the GTM conversion is pushed only when the server says the enquiry is
+       clean (track !== false), so spam never shows up as a conversion */
   const contactForm = document.getElementById("contactForm");
   if (contactForm) {
+    var formUrl = contactForm.getAttribute("action") || "contact.php";
+    var formToken = "", formTokenAt = 0, formTokenReq = null, formInput = 0;
+    function getFormToken(force) {
+      if (formTokenReq) return formTokenReq;
+      // the server accepts a token for 6 h — refresh an older one before use
+      if (!force && formToken && Date.now() - formTokenAt < 5 * 3600 * 1000) return Promise.resolve();
+      formTokenReq = fetch(formUrl + "?token=1&_=" + Date.now(), { cache: "no-store", credentials: "same-origin" })
+        .then(function (res) { return res.ok ? res.json() : null; })
+        .then(function (data) { if (data && data.token) { formToken = data.token; formTokenAt = Date.now(); } })
+        .catch(function () {})
+        .then(function () { formTokenReq = null; });
+      return formTokenReq;
+    }
+    contactForm.addEventListener("focusin", function () { getFormToken(false); });
+    ["keydown", "pointerdown", "touchstart", "click", "input", "change"].forEach(function (type) {
+      contactForm.addEventListener(type, function (e) { if (e.isTrusted) formInput++; }, { capture: true, passive: true });
+    });
+    // a field the server rejected stays marked invalid until it is edited
+    contactForm.addEventListener("input", function (e) { e.target.removeAttribute("aria-invalid"); });
+
     contactForm.addEventListener("submit", function (e) {
       e.preventDefault();
       const btn = contactForm.querySelector(".contact__submit");
@@ -1052,31 +1080,46 @@
       var sk = localStorage.getItem("jt-lang") !== "en";
       var MSG = {
         ok: sk ? "Ďakujeme — ozveme sa vám" : "Thank you — we'll be in touch",
-        err: sk ? "Niečo sa pokazilo — skúste to znova" : "Something went wrong — please try again"
+        err: sk ? "Niečo sa pokazilo — skúste to znova" : "Something went wrong — please try again",
+        email: sk ? "Skontrolujte e-mailovú adresu" : "Please check your e-mail address",
+        phone: sk ? "Skontrolujte telefónne číslo" : "Please check your phone number",
+        fast: sk ? "Skontrolujte údaje a odošlite znova" : "Please check your details and send again",
+        token: sk ? "Odošlite, prosím, ešte raz" : "Please send it once more",
+        rate: sk ? "Príliš veľa pokusov — skúste neskôr" : "Too many attempts — please try later"
       };
       // capture the e-mail before reset() clears it (for the dataLayer event)
       var emailField = contactForm.querySelector('input[name="email"]');
       var emailVal = emailField ? emailField.value.trim() : "";
-      // POST to the PHP handler (contact.php) which e-mails info@jurkovicovateplaren.sk
-      var body = new URLSearchParams(new FormData(contactForm)).toString();
-      fetch(contactForm.getAttribute("action") || "contact.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: body
+      getFormToken(false).then(function () {
+        var body = new URLSearchParams(new FormData(contactForm));
+        body.set("_t", formToken);
+        body.set("_h", String(formInput));
+        // POST to the PHP handler (contact.php) which e-mails info@jurkovicovateplaren.sk
+        return fetch(formUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: body.toString()
+        });
       }).then(function (res) {
-        if (!res.ok) throw new Error("bad status");
-        return res.json().catch(function () { return { ok: true }; });
+        return res.json().catch(function () { return { ok: res.ok }; });
       }).then(function (data) {
-        if (data && data.ok === false) throw new Error("server");
-        // GTM: fire a conversion event with the submitted e-mail
-        window.dataLayer = window.dataLayer || [];
-        window.dataLayer.push({ event: "form_submission", form_name: "contact", email: emailVal });
+        if (!data || data.ok !== true) throw new Error((data && data.error) || "server");
+        // GTM: fire a conversion event with the submitted e-mail — clean enquiries only
+        if (data.track !== false) {
+          window.dataLayer = window.dataLayer || [];
+          window.dataLayer.push({ event: "form_submission", form_name: "contact", email: emailVal });
+        }
         btn.textContent = MSG.ok;
         contactForm.reset();
-      }).catch(function () {
-        btn.textContent = MSG.err;
+        formToken = ""; // one-time token — used up
+      }).catch(function (err) {
+        var code = err && err.message;
+        if (code === "token") { formToken = ""; getFormToken(true); } // expired / used → fetch a fresh one
+        btn.textContent = code !== "ok" && typeof MSG[code] === "string" ? MSG[code] : MSG.err;
         btn.disabled = false;
         btn.style.opacity = "1";
+        var bad = code === "email" ? emailField : code === "phone" ? contactForm.querySelector('input[name="phone"]') : null;
+        if (bad) { bad.setAttribute("aria-invalid", "true"); bad.focus(); }
       });
     });
   }
