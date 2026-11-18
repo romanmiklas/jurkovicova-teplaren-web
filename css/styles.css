@@ -30,10 +30,10 @@
 /* ---------- Design tokens ----------------------------------------------- */
 :root {
   /* base colours */
-  --stone-100:        #fff6f2;
-  --stone-100-50:     #fff6f280;
-  --stone-100-20:     #fff6f233;
-  --stone-100-10:     #fff6f21a;
+  --stone-100:        #f9f5f1;
+  --stone-100-50:     #f9f5f180;
+  --stone-100-20:     #f9f5f133;
+  --stone-100-10:     #f9f5f11a;
   --stone-200:        #f6ede5;
   --stone-300:        #cac3bb;
   --stone-500:        #928d88;
@@ -384,7 +384,7 @@ body.menu-open .header-actions { visibility: hidden; transition: visibility 0s; 
   color: var(--stone-100);
 }
 .nav-panel__client img { width: 16px; height: 16px; flex: 0 0 16px; }
-.nav-panel__client:hover { background: rgba(255, 246, 242, 0.32); }
+.nav-panel__client:hover { background: rgba(249, 245, 241, 0.32); }
 
 .btn--lg {
   height: 48px;
@@ -535,7 +535,7 @@ body.menu-open .header-actions { visibility: hidden; transition: visibility 0s; 
   white-space: nowrap;
   transition: background-color .28s ease;
 }
-.vr-btn:hover { background: rgba(255, 246, 242, 0.32); }
+.vr-btn:hover { background: rgba(249, 245, 241, 0.32); }
 
 /* ---- slider (expanding panels) ---- */
 .hero__slider {
@@ -1376,16 +1376,15 @@ body.menu-open .header-actions { visibility: hidden; transition: visibility 0s; 
   color: var(--stone-100);
   transition: opacity .28s ease, background-color .28s ease;
 }
-.about__ctrl:hover { background: rgba(255, 246, 242, 0.35); scale: 1.06; }
+.about__ctrl:hover { background: rgba(249, 245, 241, 0.35); scale: 1.06; }
 .about__ctrl[aria-disabled="true"] { opacity: .35; pointer-events: none; }
 .about__ctrl svg { width: 16px; height: 16px; }
 
 /* ====================================================================== */
 /*  07 — TOUR (3D)                                                         */
 /* ====================================================================== */
-/* text colours are the Figma values (base-colors/stone-100 = #f9f5f1 in the file; the
-   site-wide --stone-100 token is still #fff6f2) — scoped here per the 614:2851 review */
-.tour { background: var(--stone-900); padding: 60px var(--pad-x); --tour-ink: #f9f5f1; --tour-ink-50: rgba(249, 245, 241, 0.5); }
+/* text colours = base-colors/stone-100 (Figma 614:2851 review) */
+.tour { background: var(--stone-900); padding: 60px var(--pad-x); --tour-ink: var(--stone-100); --tour-ink-50: var(--stone-100-50); }
 .tour__panel {
   background: var(--stone-950);
   border-radius: var(--radius-medium);
@@ -1453,7 +1452,7 @@ body.menu-open .header-actions { visibility: hidden; transition: visibility 0s; 
   white-space: nowrap;
   transition: background-color .28s ease, gap .28s ease;
 }
-.tour__card:hover .tour__btn { background: rgba(255, 246, 242, 0.32); gap: 14px; }
+.tour__card:hover .tour__btn { background: rgba(249, 245, 241, 0.32); gap: 14px; }
 
 /* ====================================================================== */
 /*  08 — AMENITIES (location map)                                          */
@@ -1634,7 +1633,7 @@ body.menu-open .header-actions { visibility: hidden; transition: visibility 0s; 
   color: var(--stone-100); font-size: 14px; letter-spacing: 0.42px;
   transition: background-color .28s ease, border-color .28s ease;
 }
-.faq-map-btn:hover { background: rgba(255, 246, 242, .1); border-color: var(--stone-100); }
+.faq-map-btn:hover { background: rgba(249, 245, 241, .1); border-color: var(--stone-100); }
 
 /* ====================================================================== */
 /*  09 — CONTACT                                                           */
@@ -2212,7 +2211,7 @@ body.menu-open .header-actions { visibility: hidden; transition: visibility 0s; 
   line-height: 1.4;
   transition: background-color .28s ease;
 }
-.e404__cta:hover { background: rgba(255, 246, 242, 0.32); }
+.e404__cta:hover { background: rgba(249, 245, 241, 0.32); }
 @media (max-width: 720px) {
   .e404__label, .e404__title { font-size: 28px; }
 }
@@ -2352,7 +2351,7 @@ body.welcome-open { overflow: hidden; }
     -webkit-backdrop-filter: none !important;
     backdrop-filter: none !important;
   }
-  .hero__vr { background: rgba(255, 246, 242, .18); }
+  .hero__vr { background: rgba(249, 245, 241, .18); }
 }
 
 /* §14 — stronger separation when the user asks for more contrast */
